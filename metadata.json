@@ -1,0 +1,6 @@
+{
+  "name": "Resume Space",
+  "description": "A student-focused internship resume editor workspace MVP.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
