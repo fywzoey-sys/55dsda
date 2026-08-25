@@ -22,14 +22,18 @@ export const RightPanel: React.FC<RightPanelProps> = ({
   };
 
   return (
-    <aside className="w-80 xl:w-88 flex-shrink-0 bg-[#EFE7D9]/70 backdrop-blur-md border border-[#E2DACF]/60 rounded-3xl p-4 flex flex-col shadow-xs select-none">
+    <aside 
+      className={`w-full h-full flex flex-col rounded-[20px] p-4 select-none transition-colors duration-200 ${
+        activeTab === 'Job Description' ? 'bg-[#F5DCA9]' : 'bg-[#EFE7D9]'
+      }`}
+    >
       {/* Top Tabs */}
-      <div className="flex bg-[#E2DACF]/60 p-1 rounded-2xl mb-4 border border-[#E2DACF]">
+      <div className="flex bg-white/30 p-1 rounded-2xl mb-4">
         <button
           onClick={() => onTabChange('Job Description')}
           className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-medium transition-all duration-150 ${
             activeTab === 'Job Description'
-              ? 'bg-[#F5DCA9] text-[#1F1F1B] font-semibold shadow-xs'
+              ? 'bg-white/60 text-[#1F1F1B] font-semibold shadow-sm'
               : 'text-[#6E6A62] hover:text-[#1F1F1B]'
           }`}
         >
@@ -40,7 +44,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({
           onClick={() => onTabChange('Library')}
           className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-medium transition-all duration-150 ${
             activeTab === 'Library'
-              ? 'bg-[#D9DFAD] text-[#1F1F1B] font-semibold shadow-xs'
+              ? 'bg-white/60 text-[#1F1F1B] font-semibold shadow-sm'
               : 'text-[#6E6A62] hover:text-[#1F1F1B]'
           }`}
         >
@@ -50,19 +54,19 @@ export const RightPanel: React.FC<RightPanelProps> = ({
       </div>
 
       {/* Tab Content */}
-      <div className="flex-1 overflow-y-auto pr-1 space-y-4">
+      <div className="flex-1 overflow-y-auto pr-1 space-y-4 right-panel-content">
         {activeTab === 'Job Description' ? (
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-semibold uppercase tracking-wider text-[#6E6A62]">
                 Target JD
               </span>
-              <span className="text-[11px] px-2 py-0.5 bg-[#F5DCA9]/60 rounded-md font-medium text-[#1F1F1B]">
+              <span className="text-[11px] px-2 py-0.5 bg-white/50 rounded-md font-medium text-[#1F1F1B]">
                 TikTok · PM Intern
               </span>
             </div>
             
-            <div className="bg-[#FFFEFA] border border-[#E2DACF] rounded-2xl p-4 shadow-2xs">
+            <div className="bg-[#FFFEFA] border border-[#E2DACF]/60 rounded-[16px] p-4 shadow-sm">
               <textarea
                 readOnly
                 value={mockJD}
@@ -74,57 +78,42 @@ export const RightPanel: React.FC<RightPanelProps> = ({
             </p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-6">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-semibold uppercase tracking-wider text-[#6E6A62]">
                 Experience Library
               </span>
-              <span className="text-[11px] px-2 py-0.5 bg-[#D9DFAD]/60 rounded-md font-medium text-[#1F1F1B]">
+              <span className="text-[11px] px-2 py-0.5 bg-white/50 rounded-md font-medium text-[#1F1F1B]">
                 Saved Bullets
               </span>
             </div>
 
             {libraryItems.map((item, groupIdx) => (
-              <div
-                key={groupIdx}
-                className="bg-[#FFFEFA] border border-[#E2DACF] rounded-2xl p-3.5 shadow-2xs space-y-2.5"
-              >
-                <div className="flex items-center justify-between border-b border-[#E2DACF]/50 pb-2">
+              <div key={groupIdx} className="space-y-2">
+                <div className="flex items-center justify-between pb-1">
                   <div>
                     <h3 className="font-semibold text-xs text-[#1F1F1B]">
                       {item.company}
                     </h3>
                     <p className="text-[11px] text-[#6E6A62]">{item.role}</p>
                   </div>
-                  <span className="text-[10px] font-medium px-2 py-0.5 bg-[#EFE7D9] text-[#6E6A62] rounded-full">
-                    {item.bulletsCount} saved
-                  </span>
                 </div>
 
-                <div className="space-y-2">
-                  {item.bullets.map((bullet, idx) => {
-                    const bulletKey = `${groupIdx}-${idx}`;
-                    const isAdded = addedBullets[bulletKey];
+                <div className="space-y-1">
+                  {item.bullets.map((bullet) => {
+                    const bulletKey = `${groupIdx}-${bullet.id}`;
                     return (
                       <div
-                        key={idx}
-                        className="group flex items-start justify-between gap-2 p-2 rounded-xl bg-[#F6F1E7]/40 hover:bg-[#F6F1E7] transition-colors duration-100 text-xs text-[#1F1F1B]"
+                        key={bullet.id}
+                        className="group flex items-start justify-between gap-2 py-1.5 px-2 -mx-2 rounded-lg hover:bg-white/40 transition-colors duration-100 text-xs text-[#1F1F1B]"
                       >
-                        <p className="leading-relaxed flex-1">{bullet}</p>
+                        <p className="leading-relaxed flex-1 mt-0.5">{bullet.text}</p>
                         <button
-                          onClick={() => handleAddBullet(bulletKey)}
-                          className={`w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 transition-all duration-150 ${
-                            isAdded
-                              ? 'bg-[#AAC06A] text-white'
-                              : 'bg-[#EFE7D9] text-[#6E6A62] hover:bg-[#AAC06A] hover:text-[#1F1F1B]'
-                          }`}
-                          title="Add bullet to resume"
+                          disabled
+                          className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 transition-all duration-150 opacity-0 group-hover:opacity-100 bg-[#AAC06A]/20 text-[#6E6A62] cursor-not-allowed"
+                          title="Available in Phase 2"
                         >
-                          {isAdded ? (
-                            <Check className="w-3.5 h-3.5" />
-                          ) : (
-                            <Plus className="w-3.5 h-3.5" />
-                          )}
+                          <Plus className="w-3.5 h-3.5" />
                         </button>
                       </div>
                     );

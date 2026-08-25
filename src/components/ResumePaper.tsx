@@ -16,8 +16,14 @@ export const ResumePaper: React.FC<ResumePaperProps> = ({ resume, template }) =>
       : 'space-y-5 text-[14px]';
 
   return (
-    <div className="flex justify-center w-full overflow-x-auto py-2">
-      <div className="w-full max-w-[740px] min-h-[960px] bg-[#FFFEFA] shadow-xl rounded-xl border border-[#E2DACF]/80 p-10 md:p-14 text-[#1F1F1B] font-sans selection:bg-[#D9DFAD]/50">
+    <div className="flex justify-center w-full pb-8">
+      <div 
+        className="w-full max-w-[740px] aspect-[210/297] bg-[#FFFEFA] rounded-[14px] p-10 md:p-14 text-[#1F1F1B] font-sans selection:bg-[#D9DFAD]/50"
+        style={{
+          boxShadow: '0 8px 30px rgba(31, 31, 27, 0.06)',
+          border: '1px solid rgba(226, 218, 207, 0.45)'
+        }}
+      >
         
         {/* Header */}
         <div className="border-b border-[#E2DACF]/60 pb-5 mb-6 text-center sm:text-left flex flex-col sm:flex-row sm:items-end sm:justify-between">
@@ -29,7 +35,7 @@ export const ResumePaper: React.FC<ResumePaperProps> = ({ resume, template }) =>
               {resume.title}
             </p>
           </div>
-          <div className="text-xs text-[#6E6A62] mt-3 sm:mt-0 sm:text-right space-y-0.5 font-mono">
+          <div className="text-xs text-[#6E6A62] mt-3 sm:mt-0 sm:text-right space-y-0.5" style={{ fontVariantNumeric: 'tabular-nums' }}>
             <p>{resume.contact.email}</p>
             <p>{resume.contact.phone} · {resume.contact.location}</p>
             <p>{resume.contact.linkedin}</p>
@@ -83,9 +89,9 @@ export const ResumePaper: React.FC<ResumePaperProps> = ({ resume, template }) =>
                     {exp.role}
                   </p>
                   <ul className="list-disc list-inside space-y-1 text-xs text-[#1F1F1B]/90 leading-relaxed">
-                    {exp.bullets.map((bullet, idx) => (
-                      <li key={idx} className="pl-1">
-                        <span className="-ml-1">{bullet}</span>
+                    {exp.bullets.map((bullet) => (
+                      <li key={bullet.id} className="pl-1">
+                        <span className="-ml-1">{bullet.text}</span>
                       </li>
                     ))}
                   </ul>

@@ -13,11 +13,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
   resumes,
 }) => {
   return (
-    <aside className="w-60 xl:w-64 flex-shrink-0 bg-[#EFE7D9]/70 backdrop-blur-md border border-[#E2DACF]/60 rounded-3xl p-4 flex flex-col justify-between shadow-xs select-none">
+    <aside className="w-full h-full flex-shrink-0 bg-[#D9DFAD] rounded-[20px] p-4 flex flex-col justify-between select-none">
       <div>
         {/* Logo / Brand */}
         <div className="flex items-center gap-2.5 px-3 py-3 mb-6">
-          <div className="w-8 h-8 rounded-xl bg-[#AAC06A] flex items-center justify-center text-[#1F1F1B] shadow-xs">
+          <div className="w-8 h-8 rounded-xl bg-[#AAC06A] flex items-center justify-center text-[#1F1F1B] shadow-sm">
             <Layers className="w-4 h-4" />
           </div>
           <div>
@@ -32,14 +32,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <nav className="space-y-1 mb-6">
           <button
             onClick={() => {}}
-            className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium text-[#6E6A62] hover:text-[#1F1F1B] hover:bg-[#E2DACF]/50 transition-all duration-150"
+            className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium text-[#6E6A62] hover:text-[#1F1F1B] hover:bg-[#EFE7D9]/40 transition-all duration-150"
           >
             <Home className="w-4 h-4 text-[#6E6A62]" />
             <span>Home</span>
           </button>
           <button
             onClick={() => {}}
-            className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium text-[#6E6A62] hover:text-[#1F1F1B] hover:bg-[#E2DACF]/50 transition-all duration-150"
+            className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium text-[#6E6A62] hover:text-[#1F1F1B] hover:bg-[#EFE7D9]/40 transition-all duration-150"
           >
             <BookOpen className="w-4 h-4 text-[#6E6A62]" />
             <span>Experience Library</span>
@@ -62,8 +62,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   onClick={() => onSelectResume(resume.id)}
                   className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-medium transition-all duration-150 ${
                     isSelected
-                      ? 'bg-[#D9DFAD] text-[#1F1F1B] shadow-xs font-semibold'
-                      : 'text-[#6E6A62] hover:text-[#1F1F1B] hover:bg-[#E2DACF]/40'
+                      ? 'bg-white/40 text-[#1F1F1B] shadow-sm font-semibold'
+                      : 'text-[#6E6A62] hover:text-[#1F1F1B] hover:bg-[#EFE7D9]/40'
                   }`}
                 >
                   <FileText
@@ -80,10 +80,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* New Resume Button */}
-      <div className="pt-2 border-t border-[#E2DACF]/60">
+      <div className="pt-2 border-t border-[#AAC06A]/30">
         <button
           onClick={() => {}}
-          className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-xs font-medium text-[#1F1F1B] bg-[#D9DFAD]/60 hover:bg-[#D9DFAD] border border-[#AAC06A]/30 transition-all duration-150 shadow-xs cursor-pointer"
+          className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-xs font-medium text-[#1F1F1B] bg-white/40 hover:bg-white/60 transition-all duration-150 shadow-sm cursor-pointer"
         >
           <Plus className="w-3.5 h-3.5" />
           <span>New Resume</span>

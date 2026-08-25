@@ -33,13 +33,13 @@ export default function App() {
   const currentResume = mockResumes[currentResumeId] || mockResumes['pm-resume'];
 
   return (
-    <div className="min-h-screen bg-[#F6F1E7] text-[#1F1F1B] font-sans flex flex-col p-3 md:p-5 selection:bg-[#D9DFAD]/50">
+    <div className="h-screen overflow-hidden bg-[#F6F1E7] text-[#1F1F1B] font-sans flex flex-col p-4 lg:p-5 selection:bg-[#D9DFAD]/50">
       
       {/* Mobile Top Header */}
       <div className="lg:hidden flex items-center justify-between bg-[#EFE7D9] px-4 py-3 rounded-2xl mb-4 border border-[#E2DACF]">
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="p-1.5 rounded-lg bg-[#FFFEFA] text-[#1F1F1B] shadow-2xs"
+          className="p-1.5 rounded-lg bg-[#FFFEFA] text-[#1F1F1B] shadow-sm"
           aria-label="Toggle Navigation"
         >
           {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -47,20 +47,20 @@ export default function App() {
         <span className="font-semibold text-sm">Resume Space</span>
         <button
           onClick={() => setMobileRightOpen(!mobileRightOpen)}
-          className="p-1.5 rounded-lg bg-[#FFFEFA] text-[#1F1F1B] shadow-2xs text-xs font-medium px-3"
+          className="p-1.5 rounded-lg bg-[#FFFEFA] text-[#1F1F1B] shadow-sm text-xs font-medium px-3"
         >
           {rightTab === 'Job Description' ? 'JD' : 'Library'}
         </button>
       </div>
 
       {/* Main Three-Column Container */}
-      <div className="flex-1 flex gap-4 max-w-[1700px] w-full mx-auto relative overflow-hidden">
+      <div className="flex-1 lg:grid lg:grid-cols-[224px_minmax(0,1fr)_304px] gap-4 min-h-0 w-full mx-auto relative">
         
         {/* Left Sidebar (Desktop & Mobile Overlay) */}
         <div
           className={`${
             mobileMenuOpen ? 'flex' : 'hidden'
-          } lg:flex fixed lg:static inset-y-0 left-0 z-50 bg-[#F6F1E7] lg:bg-transparent p-3 lg:p-0`}
+          } lg:block fixed lg:static inset-y-0 left-0 z-50 p-4 lg:p-0 min-h-0`}
         >
           <Sidebar
             currentResumeId={currentResumeId}
@@ -73,7 +73,7 @@ export default function App() {
         </div>
 
         {/* Central Workspace */}
-        <main className="flex-1 flex flex-col bg-[#EFE7D9] rounded-3xl p-4 md:p-6 border border-[#E2DACF]/60 shadow-xs overflow-hidden">
+        <main className="flex-1 lg:flex flex-col bg-[#EFE7D9] rounded-[20px] p-4 lg:p-6 border border-[#E2DACF]/60 min-h-0">
           <Toolbar
             currentResumeName={currentResume.name}
             template={template}
@@ -82,7 +82,7 @@ export default function App() {
             onExportPDF={() => {}}
           />
 
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto min-h-0 workspace-scroll">
             <ResumePaper resume={currentResume} template={template} />
           </div>
         </main>
@@ -91,7 +91,7 @@ export default function App() {
         <div
           className={`${
             mobileRightOpen ? 'flex' : 'hidden'
-          } xl:flex fixed xl:static inset-y-0 right-0 z-50 bg-[#F6F1E7] xl:bg-transparent p-3 xl:p-0`}
+          } lg:block fixed lg:static inset-y-0 right-0 z-50 p-4 lg:p-0 min-h-0`}
         >
           <RightPanel
             activeTab={rightTab}
