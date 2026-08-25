@@ -1,10 +1,14 @@
+import React from 'react';
 import { Download, Eye } from 'lucide-react';
+
+export type SaveStatus = 'saved' | 'saving' | 'error';
 
 interface ToolbarProps {
   currentResumeName: string;
+  saveStatus: SaveStatus;
 }
 
-export const Toolbar: React.FC<ToolbarProps> = ({ currentResumeName }) => {
+export const Toolbar: React.FC<ToolbarProps> = ({ currentResumeName, saveStatus }) => {
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 px-1 py-3 mb-4">
       {/* Left info */}
@@ -13,11 +17,25 @@ export const Toolbar: React.FC<ToolbarProps> = ({ currentResumeName }) => {
           {currentResumeName}
         </span>
         <span 
-          className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-[#E2DACF]/50 text-[#6E6A62]"
-          title="Real autosave will be implemented in Phase 2"
+          className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-[#E2DACF]/50 text-[#6E6A62] transition-colors"
+          title={saveStatus === 'saved' ? 'All changes saved to your browser' : saveStatus === 'saving' ? 'Saving changes...' : 'Failed to save to local storage'}
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-[#AAC06A]"></span>
-          Local prototype
+          {saveStatus === 'saving' ? (
+            <>
+              <span className="w-1.5 h-1.5 rounded-full bg-[#AAC06A] animate-ping"></span>
+              <span>Saving…</span>
+            </>
+          ) : saveStatus === 'error' ? (
+            <>
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-600"></span>
+              <span>Save failed</span>
+            </>
+          ) : (
+            <>
+              <span className="w-1.5 h-1.5 rounded-full bg-[#AAC06A]"></span>
+              <span>Saved locally</span>
+            </>
+          )}
         </span>
         <span className="text-[11px] text-[#6E6A62] font-medium hidden sm:inline-block">
           A4 preview

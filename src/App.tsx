@@ -3,28 +3,100 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Sidebar } from './components/Sidebar';
-import { Toolbar } from './components/Toolbar';
+import { Toolbar, SaveStatus } from './components/Toolbar';
 import { ResumePaper } from './components/ResumePaper';
 import { RightPanel } from './components/RightPanel';
 import { mockResumes } from './data/mockData';
-import { RightTabType } from './types';
+import { Resume, RightTabType } from './types';
 import { Menu, X } from 'lucide-react';
 
+const STORAGE_KEY = 'resume-space:resumes:v1';
+const AUTOSAVE_DEBOUNCE_MS = 600;
+
+function loadInitialResumes(): Record<string, Resume> {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      if (
+        parsed &&
+        typeof parsed === 'object' &&
+        parsed['pm-resume'] &&
+        parsed['growth-resume'] &&
+        parsed['consulting-resume'] &&
+        Array.isArray(parsed['pm-resume'].sections)
+      ) {
+        return parsed as Record<string, Resume>;
+      }
+    }
+  } catch (err) {
+    console.warn('Failed to parse resumes from LocalStorage, falling back to mock data:', err);
+  }
+
+  // Safe fallback to cloned initial mock data
+  return JSON.parse(JSON.stringify(mockResumes));
+}
+
 export default function App() {
+  const [resumes, setResumes] = useState<Record<string, Resume>>(loadInitialResumes);
   const [currentResumeId, setCurrentResumeId] = useState<string>('pm-resume');
   const [rightTab, setRightTab] = useState<RightTabType>('Job Description');
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const [mobileRightOpen, setMobileRightOpen] = useState<boolean>(false);
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>('saved');
+
+  const isInitialMount = useRef<boolean>(true);
+  const debounceTimerRef = useRef<number | null>(null);
+
+  // Debounced Autosave to LocalStorage
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+
+    setSaveStatus('saving');
+
+    if (debounceTimerRef.current !== null) {
+      window.clearTimeout(debounceTimerRef.current);
+    }
+
+    debounceTimerRef.current = window.setTimeout(() => {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(resumes));
+        setSaveStatus('saved');
+      } catch (err) {
+        console.error('Failed to save to LocalStorage:', err);
+        setSaveStatus('error');
+      }
+    }, AUTOSAVE_DEBOUNCE_MS);
+
+    return () => {
+      if (debounceTimerRef.current !== null) {
+        window.clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, [resumes]);
 
   const resumesList = [
-    { id: 'pm-resume', name: 'PM Resume' },
-    { id: 'growth-resume', name: 'Growth Resume' },
-    { id: 'consulting-resume', name: 'Consulting Resume' },
+    { id: 'pm-resume', name: resumes['pm-resume']?.name || 'PM Resume' },
+    { id: 'growth-resume', name: resumes['growth-resume']?.name || 'Growth Resume' },
+    { id: 'consulting-resume', name: resumes['consulting-resume']?.name || 'Consulting Resume' },
   ];
 
-  const currentResume = mockResumes[currentResumeId] || mockResumes['pm-resume'];
+  const currentResume = resumes[currentResumeId] || resumes['pm-resume'] || mockResumes['pm-resume'];
+
+  const handleUpdateResume = useCallback((updatedResume: Resume) => {
+    setResumes((prev) => ({
+      ...prev,
+      [updatedResume.id]: {
+        ...updatedResume,
+        updatedAt: new Date().toISOString(),
+      },
+    }));
+  }, []);
 
   return (
     <div className="h-screen overflow-hidden bg-[#F6F1E7] text-[#1F1F1B] font-sans flex flex-col p-4 lg:p-5 selection:bg-[#D9DFAD]/50">
@@ -68,10 +140,13 @@ export default function App() {
 
         {/* Central Workspace */}
         <main className="flex-1 lg:flex flex-col bg-[#EFE7D9] rounded-[20px] p-4 lg:p-6 border border-[#E2DACF]/60 min-h-0">
-          <Toolbar currentResumeName={currentResume.name} />
+          <Toolbar currentResumeName={currentResume.name} saveStatus={saveStatus} />
 
           <div className="flex-1 overflow-y-auto min-h-0 workspace-scroll pr-2">
-            <ResumePaper resume={currentResume} />
+            <ResumePaper
+              resume={currentResume}
+              onUpdateResume={handleUpdateResume}
+            />
           </div>
         </main>
 
@@ -93,4 +168,3 @@ export default function App() {
     </div>
   );
 }
-
