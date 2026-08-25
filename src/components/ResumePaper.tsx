@@ -1,19 +1,18 @@
-import React from 'react';
-import { ResumeData, TemplateType } from '../types';
+import { Resume } from '../types';
 
 interface ResumePaperProps {
-  resume: ResumeData;
-  template: TemplateType;
+  resume: Resume;
 }
 
-export const ResumePaper: React.FC<ResumePaperProps> = ({ resume, template }) => {
-  // Density styling based on template
-  const spacingClass =
-    template === 'Compact'
-      ? 'space-y-4 text-[13px]'
-      : template === 'Modern'
-      ? 'space-y-6 text-[14px]'
-      : 'space-y-5 text-[14px]';
+function formatDateRange(startDate?: string, endDate?: string) {
+  if (!startDate && !endDate) return '';
+  if (!endDate) return startDate ?? '';
+  return `${startDate} – ${endDate}`;
+}
+
+export const ResumePaper: React.FC<ResumePaperProps> = ({ resume }) => {
+  // Density styling based on Classic template
+  const spacingClass = 'space-y-5 text-[14px]';
 
   return (
     <div className="flex justify-center w-full pb-8">
@@ -43,89 +42,106 @@ export const ResumePaper: React.FC<ResumePaperProps> = ({ resume, template }) =>
         </div>
 
         <div className={spacingClass}>
-          {/* Education Section */}
-          <section>
-            <h2 className="text-xs font-semibold uppercase tracking-wider text-[#6E6A62] mb-2.5 pb-1 border-b border-[#E2DACF]/40">
-              Education
-            </h2>
-            {resume.education.map((edu) => (
-              <div
-                key={edu.id}
-                className="group p-2 -mx-2 rounded-lg transition-colors duration-100 hover:bg-[#F6F1E7]/60 cursor-pointer"
-              >
-                <div className="flex justify-between items-baseline">
-                  <h3 className="font-semibold text-[#1F1F1B] text-sm">
-                    {edu.school}
-                  </h3>
-                  <span className="text-xs text-[#6E6A62] font-medium">
-                    {edu.period}
-                  </span>
-                </div>
-                <p className="text-xs text-[#6E6A62] mt-0.5">{edu.degree}</p>
-              </div>
-            ))}
-          </section>
-
-          {/* Experience Section */}
-          <section>
-            <h2 className="text-xs font-semibold uppercase tracking-wider text-[#6E6A62] mb-2.5 pb-1 border-b border-[#E2DACF]/40">
-              Experience
-            </h2>
-            <div className="space-y-4">
-              {resume.experience.map((exp) => (
-                <div
-                  key={exp.id}
-                  className="group p-2.5 -mx-2 rounded-lg transition-colors duration-100 hover:bg-[#F6F1E7]/60 cursor-pointer"
-                >
-                  <div className="flex justify-between items-baseline">
-                    <h3 className="font-semibold text-[#1F1F1B] text-sm">
-                      {exp.company}
-                    </h3>
-                    <span className="text-xs text-[#6E6A62] font-medium">
-                      {exp.period}
-                    </span>
-                  </div>
-                  <p className="text-xs font-medium text-[#6E6A62] mb-1.5">
-                    {exp.role}
-                  </p>
-                  <ul className="list-disc list-inside space-y-1 text-xs text-[#1F1F1B]/90 leading-relaxed">
-                    {exp.bullets.map((bullet) => (
-                      <li key={bullet.id} className="pl-1">
-                        <span className="-ml-1">{bullet.text}</span>
-                      </li>
+          {resume.sections.map((section) => {
+            switch (section.type) {
+              case 'education':
+                return (
+                  <section key={section.id}>
+                    <h2 className="text-xs font-semibold uppercase tracking-wider text-[#6E6A62] mb-2.5 pb-1 border-b border-[#E2DACF]/40">
+                      {section.title}
+                    </h2>
+                    {section.items.map((edu) => (
+                      <div
+                        key={edu.id}
+                        className="group p-2 -mx-2 rounded-lg transition-colors duration-100 hover:bg-[#F6F1E7]/60 cursor-pointer"
+                      >
+                        <div className="flex justify-between items-baseline">
+                          <h3 className="font-semibold text-[#1F1F1B] text-sm">
+                            {edu.school}
+                          </h3>
+                          <span className="text-xs text-[#6E6A62] font-medium" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                            {formatDateRange(edu.startDate, edu.endDate)}
+                          </span>
+                        </div>
+                        <p className="text-xs text-[#6E6A62] mt-0.5">{edu.degree}</p>
+                      </div>
                     ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          </section>
+                  </section>
+                );
 
-          {/* Projects Section */}
-          <section>
-            <h2 className="text-xs font-semibold uppercase tracking-wider text-[#6E6A62] mb-2.5 pb-1 border-b border-[#E2DACF]/40">
-              Projects
-            </h2>
-            <div className="space-y-3">
-              {resume.projects.map((proj) => (
-                <div
-                  key={proj.id}
-                  className="group p-2.5 -mx-2 rounded-lg transition-colors duration-100 hover:bg-[#F6F1E7]/60 cursor-pointer"
-                >
-                  <div className="flex justify-between items-baseline">
-                    <h3 className="font-semibold text-[#1F1F1B] text-sm">
-                      {proj.name}
-                    </h3>
-                    <span className="text-xs text-[#6E6A62] font-medium">
-                      {proj.role}
-                    </span>
-                  </div>
-                  <p className="text-xs text-[#1F1F1B]/90 mt-1 leading-relaxed">
-                    {proj.description}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </section>
+              case 'experience':
+                return (
+                  <section key={section.id}>
+                    <h2 className="text-xs font-semibold uppercase tracking-wider text-[#6E6A62] mb-2.5 pb-1 border-b border-[#E2DACF]/40">
+                      {section.title}
+                    </h2>
+                    <div className="space-y-4">
+                      {section.items.map((exp) => (
+                        <div
+                          key={exp.id}
+                          className="group p-2.5 -mx-2 rounded-lg transition-colors duration-100 hover:bg-[#F6F1E7]/60 cursor-pointer"
+                        >
+                          <div className="flex justify-between items-baseline">
+                            <h3 className="font-semibold text-[#1F1F1B] text-sm">
+                              {exp.company}
+                            </h3>
+                            <span className="text-xs text-[#6E6A62] font-medium" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                              {formatDateRange(exp.startDate, exp.endDate)}
+                            </span>
+                          </div>
+                          <p className="text-xs font-medium text-[#6E6A62] mb-1.5">
+                            {exp.role}
+                          </p>
+                          <ul className="list-disc list-inside space-y-1 text-xs text-[#1F1F1B]/90 leading-relaxed">
+                            {exp.bullets.map((bullet) => (
+                              <li key={bullet.id} className="pl-1">
+                                <span className="-ml-1">{bullet.text}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+                );
+
+              case 'projects':
+                return (
+                  <section key={section.id}>
+                    <h2 className="text-xs font-semibold uppercase tracking-wider text-[#6E6A62] mb-2.5 pb-1 border-b border-[#E2DACF]/40">
+                      {section.title}
+                    </h2>
+                    <div className="space-y-3">
+                      {section.items.map((proj) => (
+                        <div
+                          key={proj.id}
+                          className="group p-2.5 -mx-2 rounded-lg transition-colors duration-100 hover:bg-[#F6F1E7]/60 cursor-pointer"
+                        >
+                          <div className="flex justify-between items-baseline">
+                            <h3 className="font-semibold text-[#1F1F1B] text-sm">
+                              {proj.name}
+                            </h3>
+                            <span className="text-xs text-[#6E6A62] font-medium" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                              {formatDateRange(proj.startDate, proj.endDate) || proj.role}
+                            </span>
+                          </div>
+                          <ul className="list-disc list-inside space-y-1 text-xs text-[#1F1F1B]/90 leading-relaxed mt-1.5">
+                            {proj.bullets.map((bullet) => (
+                              <li key={bullet.id} className="pl-1">
+                                <span className="-ml-1">{bullet.text}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+                );
+
+              default:
+                return null;
+            }
+          })}
         </div>
 
       </div>

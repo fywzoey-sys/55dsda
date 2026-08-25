@@ -6,3 +6,25 @@ body,
   height: 100%;
   overflow: hidden;
 }
+
+.workspace-scroll,
+.right-panel-content {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(110, 106, 98, 0.32) transparent;
+}
+
+.workspace-scroll::-webkit-scrollbar,
+.right-panel-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.workspace-scroll::-webkit-scrollbar-track,
+.right-panel-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.workspace-scroll::-webkit-scrollbar-thumb,
+.right-panel-content::-webkit-scrollbar-thumb {
+  background: rgba(110, 106, 98, 0.28);
+  border-radius: 999px;
+}

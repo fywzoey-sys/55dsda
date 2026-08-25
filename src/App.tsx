@@ -8,18 +8,17 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { Toolbar } from './components/Toolbar';
 import { ResumePaper } from './components/ResumePaper';
 import { RightPanel } from './components/RightPanel';
 import { mockResumes } from './data/mockData';
-import { TemplateType, RightTabType } from './types';
-import { Menu, X, Sparkles } from 'lucide-react';
+import { RightTabType } from './types';
+import { Menu, X } from 'lucide-react';
 
 export default function App() {
   const [currentResumeId, setCurrentResumeId] = useState<string>('pm-resume');
-  const [template, setTemplate] = useState<TemplateType>('Classic');
   const [rightTab, setRightTab] = useState<RightTabType>('Job Description');
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const [mobileRightOpen, setMobileRightOpen] = useState<boolean>(false);
@@ -74,16 +73,10 @@ export default function App() {
 
         {/* Central Workspace */}
         <main className="flex-1 lg:flex flex-col bg-[#EFE7D9] rounded-[20px] p-4 lg:p-6 border border-[#E2DACF]/60 min-h-0">
-          <Toolbar
-            currentResumeName={currentResume.name}
-            template={template}
-            onSelectTemplate={(t) => setTemplate(t)}
-            onPreviewToggle={() => {}}
-            onExportPDF={() => {}}
-          />
+          <Toolbar currentResumeName={currentResume.name} />
 
-          <div className="flex-1 overflow-y-auto min-h-0 workspace-scroll">
-            <ResumePaper resume={currentResume} template={template} />
+          <div className="flex-1 overflow-y-auto min-h-0 workspace-scroll pr-2">
+            <ResumePaper resume={currentResume} />
           </div>
         </main>
 
@@ -96,6 +89,7 @@ export default function App() {
           <RightPanel
             activeTab={rightTab}
             onTabChange={(tab) => setRightTab(tab)}
+            resume={currentResume}
           />
         </div>
 

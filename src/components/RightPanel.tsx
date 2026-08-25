@@ -1,26 +1,18 @@
-import React, { useState } from 'react';
-import { RightTabType } from '../types';
-import { mockJD, libraryItems } from '../data/mockData';
-import { Briefcase, BookOpen, Plus, Check, Sparkles } from 'lucide-react';
+import { RightTabType, Resume } from '../types';
+import { libraryItems } from '../data/mockData';
+import { Briefcase, BookOpen, Plus } from 'lucide-react';
 
 interface RightPanelProps {
   activeTab: RightTabType;
   onTabChange: (tab: RightTabType) => void;
+  resume: Resume;
 }
 
 export const RightPanel: React.FC<RightPanelProps> = ({
   activeTab,
   onTabChange,
+  resume,
 }) => {
-  const [addedBullets, setAddedBullets] = useState<Record<string, boolean>>({});
-
-  const handleAddBullet = (key: string) => {
-    setAddedBullets((prev) => ({ ...prev, [key]: true }));
-    setTimeout(() => {
-      setAddedBullets((prev) => ({ ...prev, [key]: false }));
-    }, 1500);
-  };
-
   return (
     <aside 
       className={`w-full h-full flex flex-col rounded-[20px] p-4 select-none transition-colors duration-200 ${
@@ -31,7 +23,8 @@ export const RightPanel: React.FC<RightPanelProps> = ({
       <div className="flex bg-white/30 p-1 rounded-2xl mb-4">
         <button
           onClick={() => onTabChange('Job Description')}
-          className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-medium transition-all duration-150 ${
+          aria-selected={activeTab === 'Job Description'}
+          className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1F1F1B]/20 ${
             activeTab === 'Job Description'
               ? 'bg-white/60 text-[#1F1F1B] font-semibold shadow-sm'
               : 'text-[#6E6A62] hover:text-[#1F1F1B]'
@@ -42,7 +35,8 @@ export const RightPanel: React.FC<RightPanelProps> = ({
         </button>
         <button
           onClick={() => onTabChange('Library')}
-          className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-medium transition-all duration-150 ${
+          aria-selected={activeTab === 'Library'}
+          className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1F1F1B]/20 ${
             activeTab === 'Library'
               ? 'bg-white/60 text-[#1F1F1B] font-semibold shadow-sm'
               : 'text-[#6E6A62] hover:text-[#1F1F1B]'
@@ -54,7 +48,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({
       </div>
 
       {/* Tab Content */}
-      <div className="flex-1 overflow-y-auto pr-1 space-y-4 right-panel-content">
+      <div className="flex-1 overflow-y-auto pr-2 space-y-4 right-panel-content">
         {activeTab === 'Job Description' ? (
           <div className="space-y-3">
             <div className="flex items-center justify-between">
@@ -62,19 +56,17 @@ export const RightPanel: React.FC<RightPanelProps> = ({
                 Target JD
               </span>
               <span className="text-[11px] px-2 py-0.5 bg-white/50 rounded-md font-medium text-[#1F1F1B]">
-                TikTok · PM Intern
+                {resume.name}
               </span>
             </div>
             
-            <div className="bg-[#FFFEFA] border border-[#E2DACF]/60 rounded-[16px] p-4 shadow-sm">
-              <textarea
-                readOnly
-                value={mockJD}
-                className="w-full h-[480px] bg-transparent text-xs text-[#1F1F1B] leading-relaxed resize-none focus:outline-none font-sans"
-              />
+            <div className="bg-[#FFFEFA] border border-[#E2DACF]/60 rounded-[16px] p-4 shadow-sm min-h-[300px]">
+              <div className="whitespace-pre-wrap text-xs text-[#1F1F1B] leading-relaxed font-sans">
+                {resume.jd}
+              </div>
             </div>
-            <p className="text-[11px] text-[#6E6A62] italic px-1">
-              Tip: Paste any target job description here to align bullets in future stages.
+            <p className="text-[11px] text-[#6E6A62] italic px-1 text-center">
+              JD editing will be available in Phase 5.
             </p>
           </div>
         ) : (
@@ -88,8 +80,8 @@ export const RightPanel: React.FC<RightPanelProps> = ({
               </span>
             </div>
 
-            {libraryItems.map((item, groupIdx) => (
-              <div key={groupIdx} className="space-y-2">
+            {libraryItems.map((item) => (
+              <div key={item.id} className="space-y-2">
                 <div className="flex items-center justify-between pb-1">
                   <div>
                     <h3 className="font-semibold text-xs text-[#1F1F1B]">
@@ -100,24 +92,22 @@ export const RightPanel: React.FC<RightPanelProps> = ({
                 </div>
 
                 <div className="space-y-1">
-                  {item.bullets.map((bullet) => {
-                    const bulletKey = `${groupIdx}-${bullet.id}`;
-                    return (
-                      <div
-                        key={bullet.id}
-                        className="group flex items-start justify-between gap-2 py-1.5 px-2 -mx-2 rounded-lg hover:bg-white/40 transition-colors duration-100 text-xs text-[#1F1F1B]"
+                  {item.bullets.map((bullet) => (
+                    <div
+                      key={bullet.id}
+                      className="group flex items-start justify-between gap-2 py-1.5 px-2 -mx-2 rounded-lg hover:bg-white/40 transition-colors duration-100 text-xs text-[#1F1F1B]"
+                    >
+                      <p className="leading-relaxed flex-1 mt-0.5">{bullet.text}</p>
+                      <button
+                        disabled
+                        aria-disabled="true"
+                        className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 transition-all duration-150 opacity-0 group-hover:opacity-100 bg-[#AAC06A]/20 text-[#6E6A62] cursor-not-allowed focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1F1F1B]/20"
+                        title="Available in Phase 3"
                       >
-                        <p className="leading-relaxed flex-1 mt-0.5">{bullet.text}</p>
-                        <button
-                          disabled
-                          className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 transition-all duration-150 opacity-0 group-hover:opacity-100 bg-[#AAC06A]/20 text-[#6E6A62] cursor-not-allowed"
-                          title="Available in Phase 2"
-                        >
-                          <Plus className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    );
-                  })}
+                        <Plus className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ))}
                 </div>
               </div>
             ))}

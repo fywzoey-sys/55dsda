@@ -1,24 +1,10 @@
-import React from 'react';
-import { TemplateType } from '../types';
-import { Check, Download, Eye, Layers, Sparkles } from 'lucide-react';
+import { Download, Eye } from 'lucide-react';
 
 interface ToolbarProps {
   currentResumeName: string;
-  template: TemplateType;
-  onSelectTemplate: (t: TemplateType) => void;
-  onPreviewToggle?: () => void;
-  onExportPDF?: () => void;
 }
 
-export const Toolbar: React.FC<ToolbarProps> = ({
-  currentResumeName,
-  template,
-  onSelectTemplate,
-  onPreviewToggle,
-  onExportPDF,
-}) => {
-  const templates: TemplateType[] = ['Classic', 'Modern', 'Compact'];
-
+export const Toolbar: React.FC<ToolbarProps> = ({ currentResumeName }) => {
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 px-1 py-3 mb-4">
       {/* Left info */}
@@ -34,7 +20,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           Local prototype
         </span>
         <span className="text-[11px] text-[#6E6A62] font-medium hidden sm:inline-block">
-          1 page ✓
+          A4 preview
         </span>
       </div>
 
@@ -44,6 +30,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
         <div className="flex items-center">
           <button
             disabled
+            aria-disabled="true"
             className="px-3 py-1.5 rounded-lg text-xs font-medium bg-[#E2DACF]/40 text-[#6E6A62] cursor-not-allowed opacity-80"
             title="Available in Phase 5"
           >
@@ -54,6 +41,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
         {/* Preview Button */}
         <button
           disabled
+          aria-disabled="true"
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-[#6E6A62] bg-[#E2DACF]/40 cursor-not-allowed opacity-80"
           title="Available in Phase 5"
         >
@@ -64,7 +52,8 @@ export const Toolbar: React.FC<ToolbarProps> = ({
         {/* Export PDF Button */}
         <button
           disabled
-          className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold text-white/70 bg-[#1F1F1B]/60 cursor-not-allowed shadow-sm"
+          aria-disabled="true"
+          className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-medium text-[#6E6A62] bg-[#E2DACF]/40 cursor-not-allowed opacity-80"
           title="Available in Phase 5"
         >
           <Download className="w-3.5 h-3.5" />

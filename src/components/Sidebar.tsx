@@ -1,5 +1,4 @@
-import React from 'react';
-import { Home, Briefcase, FileText, Plus, BookOpen, Layers } from 'lucide-react';
+import { Home, FileText, Plus, BookOpen, Layers } from 'lucide-react';
 
 interface SidebarProps {
   currentResumeId: string;
@@ -31,17 +30,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* Main Navigation */}
         <nav className="space-y-1 mb-6">
           <button
-            onClick={() => {}}
-            className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium text-[#6E6A62] hover:text-[#1F1F1B] hover:bg-[#EFE7D9]/40 transition-all duration-150"
+            disabled
+            aria-disabled="true"
+            title="Available in a future phase"
+            className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium text-[#6E6A62] cursor-not-allowed opacity-80"
           >
-            <Home className="w-4 h-4 text-[#6E6A62]" />
+            <Home className="w-4 h-4" />
             <span>Home</span>
           </button>
           <button
-            onClick={() => {}}
-            className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium text-[#6E6A62] hover:text-[#1F1F1B] hover:bg-[#EFE7D9]/40 transition-all duration-150"
+            disabled
+            aria-disabled="true"
+            title="Available in Phase 3"
+            className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium text-[#6E6A62] cursor-not-allowed opacity-80"
           >
-            <BookOpen className="w-4 h-4 text-[#6E6A62]" />
+            <BookOpen className="w-4 h-4" />
             <span>Experience Library</span>
           </button>
         </nav>
@@ -60,7 +63,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <button
                   key={resume.id}
                   onClick={() => onSelectResume(resume.id)}
-                  className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-medium transition-all duration-150 ${
+                  aria-current={isSelected ? 'page' : undefined}
+                  className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1F1F1B]/20 ${
                     isSelected
                       ? 'bg-white/40 text-[#1F1F1B] shadow-sm font-semibold'
                       : 'text-[#6E6A62] hover:text-[#1F1F1B] hover:bg-[#EFE7D9]/40'
@@ -82,8 +86,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* New Resume Button */}
       <div className="pt-2 border-t border-[#AAC06A]/30">
         <button
-          onClick={() => {}}
-          className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-xs font-medium text-[#1F1F1B] bg-white/40 hover:bg-white/60 transition-all duration-150 shadow-sm cursor-pointer"
+          disabled
+          aria-disabled="true"
+          title="Available in Phase 3"
+          className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-xs font-medium text-[#1F1F1B]/50 bg-white/20 cursor-not-allowed opacity-80"
         >
           <Plus className="w-3.5 h-3.5" />
           <span>New Resume</span>
