@@ -1,8 +1,26 @@
 import React from 'react';
 import { Resume, ContactInfo, Education, Experience, Project, EducationSection, ExperienceSection, ProjectSection } from '../types';
 import { generateId } from '../utils/id';
-import { AutoResizeTextarea } from './AutoResizeTextarea';
-import { Plus, Trash2 } from 'lucide-react';
+// import { AutoResizeTextarea } from './AutoResizeTextarea';
+import { Plus } from 'lucide-react';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  arrayMove,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { restrictToVerticalAxis, restrictToParentElement } from '@dnd-kit/modifiers';
+import { SortableExperience } from './resume/SortableExperience';
+import { SortableBullet } from './resume/SortableBullet';
 
 interface ResumePaperProps {
   resume: Resume;
@@ -191,7 +209,137 @@ export const ResumePaper: React.FC<ResumePaperProps> = ({ resume, onUpdateResume
   };
 
   // Add Bullet
-  const handleAddBullet = (sectionId: string, parentId: string) => {
+    const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const type = active.data.current?.type;
+    const sectionId = active.data.current?.sectionId;
+    
+    if (type === 'experience') {
+      onUpdateResume({
+        ...resume,
+        sections: resume.sections.map((section) => {
+          if (section.id !== sectionId || section.type !== 'experience') return section;
+          const expSection = section as ExperienceSection;
+          const oldIndex = expSection.items.findIndex(item => item.id === active.id);
+          const newIndex = expSection.items.findIndex(item => item.id === over.id);
+          
+          return {
+            ...expSection,
+            items: arrayMove(expSection.items, oldIndex, newIndex),
+          };
+        }),
+      });
+    } else if (type === 'bullet') {
+      const parentId = active.data.current?.parentId;
+      onUpdateResume({
+        ...resume,
+        sections: resume.sections.map((section) => {
+          if (section.id !== sectionId) return section;
+          if (section.type === 'experience') {
+            const expSection = section as ExperienceSection;
+            return {
+              ...expSection,
+              items: expSection.items.map(exp => {
+                if (exp.id !== parentId) return exp;
+                const oldIndex = exp.bullets.findIndex(b => b.id === active.id);
+                const newIndex = exp.bullets.findIndex(b => b.id === over.id);
+                return {
+                  ...exp,
+                  bullets: arrayMove(exp.bullets, oldIndex, newIndex),
+                };
+              }),
+            };
+          } else if (section.type === 'projects') {
+            const projSection = section as ProjectSection;
+            return {
+              ...projSection,
+              items: projSection.items.map(proj => {
+                if (proj.id !== parentId) return proj;
+                const oldIndex = proj.bullets.findIndex(b => b.id === active.id);
+                const newIndex = proj.bullets.findIndex(b => b.id === over.id);
+                return {
+                  ...proj,
+                  bullets: arrayMove(proj.bullets, oldIndex, newIndex),
+                };
+              }),
+            };
+          }
+          return section;
+        })
+      });
+    }
+  };
+
+  const handleMoveExperience = (sectionId: string, index: number, direction: 'up' | 'down') => {
+    onUpdateResume({
+      ...resume,
+      sections: resume.sections.map((section) => {
+        if (section.id !== sectionId || section.type !== 'experience') return section;
+        const expSection = section as ExperienceSection;
+        const newIndex = direction === 'up' ? index - 1 : index + 1;
+        if (newIndex < 0 || newIndex >= expSection.items.length) return section;
+        
+        return {
+          ...expSection,
+          items: arrayMove(expSection.items, index, newIndex),
+        };
+      }),
+    });
+  };
+
+  const handleMoveBullet = (sectionId: string, parentId: string, index: number, direction: 'up' | 'down') => {
+    onUpdateResume({
+      ...resume,
+      sections: resume.sections.map((section) => {
+        if (section.id !== sectionId) return section;
+        if (section.type === 'experience') {
+          const expSection = section as ExperienceSection;
+          return {
+            ...expSection,
+            items: expSection.items.map(exp => {
+              if (exp.id !== parentId) return exp;
+              const newIndex = direction === 'up' ? index - 1 : index + 1;
+              if (newIndex < 0 || newIndex >= exp.bullets.length) return exp;
+              return {
+                ...exp,
+                bullets: arrayMove(exp.bullets, index, newIndex),
+              };
+            }),
+          };
+        } else if (section.type === 'projects') {
+          const projSection = section as ProjectSection;
+          return {
+            ...projSection,
+            items: projSection.items.map(proj => {
+              if (proj.id !== parentId) return proj;
+              const newIndex = direction === 'up' ? index - 1 : index + 1;
+              if (newIndex < 0 || newIndex >= proj.bullets.length) return proj;
+              return {
+                ...proj,
+                bullets: arrayMove(proj.bullets, index, newIndex),
+              };
+            }),
+          };
+        }
+        return section;
+      }),
+    });
+  };
+
+const handleAddBullet = (sectionId: string, parentId: string) => {
     const newBullet = {
       id: generateId('bullet'),
       text: '',
@@ -268,6 +416,7 @@ export const ResumePaper: React.FC<ResumePaperProps> = ({ resume, onUpdateResume
   };
 
   return (
+    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd} modifiers={[restrictToVerticalAxis, restrictToParentElement]}>
     <div className="flex justify-center w-full pb-8">
       <div 
         className="w-full max-w-[740px] aspect-[210/297] bg-[#FFFEFA] rounded-[14px] p-10 md:p-14 text-[#1F1F1B] font-sans selection:bg-[#D9DFAD]/50"
@@ -408,91 +557,26 @@ export const ResumePaper: React.FC<ResumePaperProps> = ({ resume, onUpdateResume
                       />
                     </div>
                     <div className="space-y-4">
-                      {section.items.map((exp) => (
-                        <div
-                          key={exp.id}
-                          className="group/exp p-2.5 -mx-2 rounded-lg transition-colors duration-100 hover:bg-[#F6F1E7]/40 relative"
-                        >
-                          <div className="flex justify-between items-baseline gap-2">
-                            <input
-                              type="text"
-                              value={exp.company}
-                              onChange={(e) => handleUpdateExperience(section.id, exp.id, 'company', e.target.value)}
-                              placeholder="Company Name"
-                              className="font-semibold text-[#1F1F1B] text-sm bg-transparent border-0 outline-none p-0.5 -ml-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 flex-1 min-w-0"
-                            />
-                            <div className="flex items-center gap-1 shrink-0 ml-2" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                              <input
-                                type="text"
-                                value={exp.startDate}
-                                onChange={(e) => handleUpdateExperience(section.id, exp.id, 'startDate', e.target.value)}
-                                placeholder="Start"
-                                className="text-xs text-[#6E6A62] font-medium bg-transparent border-0 outline-none p-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 text-right w-16"
-                              />
-                              <span className="text-xs text-[#6E6A62] font-medium">–</span>
-                              <input
-                                type="text"
-                                value={exp.endDate}
-                                onChange={(e) => handleUpdateExperience(section.id, exp.id, 'endDate', e.target.value)}
-                                placeholder="End"
-                                className="text-xs text-[#6E6A62] font-medium bg-transparent border-0 outline-none p-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 text-right w-16"
-                              />
-                              <button
-                                type="button"
-                                onClick={() => handleDeleteExperience(section.id, exp.id)}
-                                title="Delete experience"
-                                aria-label="Delete experience"
-                                className="opacity-0 group-hover/exp:opacity-100 focus-within:opacity-100 p-1 text-[#6E6A62] hover:text-red-600 rounded transition-opacity ml-1 cursor-pointer"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
-                            </div>
-                          </div>
-                          <input
-                            type="text"
-                            value={exp.role}
-                            onChange={(e) => handleUpdateExperience(section.id, exp.id, 'role', e.target.value)}
-                            placeholder="Job Title / Role"
-                            className="text-xs font-medium text-[#6E6A62] bg-transparent border-0 outline-none p-0.5 -ml-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 w-full mb-1"
+                      <SortableContext items={section.items.map(exp => exp.id)} strategy={verticalListSortingStrategy}>
+                        {section.items.map((exp, index) => (
+                          <SortableExperience
+                            key={exp.id}
+                            experience={exp}
+                            index={index}
+                            totalExperiences={section.items.length}
+                            sectionId={section.id}
+                            onUpdate={handleUpdateExperience}
+                            onDelete={handleDeleteExperience}
+                            onMoveUp={(sId, idx) => handleMoveExperience(sId, idx, 'up')}
+                            onMoveDown={(sId, idx) => handleMoveExperience(sId, idx, 'down')}
+                            onUpdateBullet={handleUpdateBullet}
+                            onDeleteBullet={handleDeleteBullet}
+                            onAddBullet={handleAddBullet}
+                            onMoveBulletUp={(sId, pId, idx) => handleMoveBullet(sId, pId, idx, 'up')}
+                            onMoveBulletDown={(sId, pId, idx) => handleMoveBullet(sId, pId, idx, 'down')}
                           />
-                          
-                          {/* Bullet points */}
-                          <div className="space-y-1 mt-1">
-                            {exp.bullets.map((bullet) => (
-                              <div key={bullet.id} className="group/bullet flex items-start gap-1 text-xs text-[#1F1F1B]/90 leading-relaxed -ml-1">
-                                <span className="select-none text-[#1F1F1B]/60 mt-1 shrink-0">•</span>
-                                <AutoResizeTextarea
-                                  value={bullet.text}
-                                  onChange={(text) => handleUpdateBullet(section.id, exp.id, bullet.id, text)}
-                                  placeholder="Describe action, context, and tangible result..."
-                                  className="flex-1 bg-transparent border-0 outline-none text-xs text-[#1F1F1B]/90 leading-relaxed p-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60"
-                                />
-                                <button
-                                  type="button"
-                                  onClick={() => handleDeleteBullet(section.id, exp.id, bullet.id)}
-                                  title="Delete bullet"
-                                  aria-label="Delete bullet"
-                                  className="opacity-0 group-hover/bullet:opacity-100 focus-within:opacity-100 p-1 text-[#6E6A62] hover:text-red-600 rounded transition-opacity shrink-0 mt-0.5 cursor-pointer"
-                                >
-                                  <Trash2 className="w-3 h-3" />
-                                </button>
-                              </div>
-                            ))}
-                          </div>
-
-                          {/* Add bullet button */}
-                          <div className="mt-1.5 pl-2">
-                            <button
-                              type="button"
-                              onClick={() => handleAddBullet(section.id, exp.id)}
-                              className="flex items-center gap-1 text-[11px] font-medium text-[#6E6A62] hover:text-[#1F1F1B] py-0.5 px-1.5 rounded hover:bg-black/[0.04] transition-colors cursor-pointer"
-                            >
-                              <Plus className="w-3 h-3" />
-                              <span>Add bullet</span>
-                            </button>
-                          </div>
-                        </div>
-                      ))}
+                        ))}
+                      </SortableContext>
                     </div>
 
                     {/* Add Experience button */}
@@ -563,26 +647,22 @@ export const ResumePaper: React.FC<ResumePaperProps> = ({ resume, onUpdateResume
 
                           {/* Bullet points */}
                           <div className="space-y-1 mt-1">
-                            {proj.bullets.map((bullet) => (
-                              <div key={bullet.id} className="group/bullet flex items-start gap-1 text-xs text-[#1F1F1B]/90 leading-relaxed -ml-1">
-                                <span className="select-none text-[#1F1F1B]/60 mt-1 shrink-0">•</span>
-                                <AutoResizeTextarea
-                                  value={bullet.text}
-                                  onChange={(text) => handleUpdateBullet(section.id, proj.id, bullet.id, text)}
-                                  placeholder="Describe project contribution or key outcome..."
-                                  className="flex-1 bg-transparent border-0 outline-none text-xs text-[#1F1F1B]/90 leading-relaxed p-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60"
+                            <SortableContext items={proj.bullets.map(b => b.id)} strategy={verticalListSortingStrategy}>
+                              {proj.bullets.map((bullet, bIndex) => (
+                                <SortableBullet
+                                  key={bullet.id}
+                                  bullet={bullet}
+                                  index={bIndex}
+                                  totalBullets={proj.bullets.length}
+                                  sectionId={section.id}
+                                  parentId={proj.id}
+                                  onUpdate={handleUpdateBullet}
+                                  onDelete={handleDeleteBullet}
+                                  onMoveUp={(sId, pId, idx) => handleMoveBullet(sId, pId, idx, 'up')}
+                                  onMoveDown={(sId, pId, idx) => handleMoveBullet(sId, pId, idx, 'down')}
                                 />
-                                <button
-                                  type="button"
-                                  onClick={() => handleDeleteBullet(section.id, proj.id, bullet.id)}
-                                  title="Delete bullet"
-                                  aria-label="Delete bullet"
-                                  className="opacity-0 group-hover/bullet:opacity-100 focus-within:opacity-100 p-1 text-[#6E6A62] hover:text-red-600 rounded transition-opacity shrink-0 mt-0.5 cursor-pointer"
-                                >
-                                  <Trash2 className="w-3 h-3" />
-                                </button>
-                              </div>
-                            ))}
+                              ))}
+                            </SortableContext>
                           </div>
 
                           {/* Add bullet button */}
@@ -610,5 +690,6 @@ export const ResumePaper: React.FC<ResumePaperProps> = ({ resume, onUpdateResume
 
       </div>
     </div>
+    </DndContext>
   );
 };
