@@ -74,7 +74,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({ currentResumeName, saveStatus 
           type="button"
           disabled
           aria-disabled="true"
-          className="hidden md:flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-medium text-[#6E6A62] bg-[#E2DACF]/40 cursor-not-allowed opacity-80"
+          className="hidden lg:flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-medium text-[#6E6A62] bg-[#E2DACF]/40 cursor-not-allowed opacity-80"
           title="Available in Phase 5"
         >
           <Download className="w-3.5 h-3.5" />

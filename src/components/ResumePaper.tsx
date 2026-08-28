@@ -437,7 +437,7 @@ const handleAddBullet = (sectionId: string, parentId: string) => {
     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd} modifiers={[restrictToVerticalAxis, restrictToParentElement]}>
     <div className="flex justify-center w-full pb-8">
       <div 
-        className="w-full max-w-[740px] aspect-auto lg:aspect-[210/297] bg-[#FFFEFA] rounded-xl lg:rounded-[14px] p-5 sm:p-8 lg:p-14 text-[#1F1F1B] font-sans selection:bg-[#D9DFAD]/50 relative shadow-sm ring-1 ring-black/[0.03] overflow-hidden"
+        className="w-full max-w-[740px] aspect-auto lg:aspect-[210/297] bg-[#FFFEFA] rounded-xl lg:rounded-[14px] p-5 sm:p-8 lg:p-14 text-[#1F1F1B] font-sans selection:bg-[#D9DFAD]/50 relative shadow-sm ring-1 ring-black/[0.03]"
         style={{
           boxShadow: '0 8px 30px rgba(31, 31, 27, 0.06)',
           border: '1px solid rgba(226, 218, 207, 0.45)'

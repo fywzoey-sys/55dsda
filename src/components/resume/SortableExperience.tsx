@@ -81,13 +81,13 @@ export const SortableExperience: React.FC<SortableExperienceProps> = ({
     <div
       ref={setNodeRef}
       style={style}
-      className="group/exp p-2.5 md:-mx-8 md:pl-8 rounded-lg transition-colors duration-100 hover:bg-[#F6F1E7]/40 relative"
+      className="group/exp p-2.5 lg:-mx-8 lg:pl-8 rounded-lg transition-colors duration-100 hover:bg-[#F6F1E7]/40 relative"
     >
       {/* Drag Handle */}
       <button 
         type="button"
         ref={setActivatorNodeRef}
-        className="hidden md:flex absolute left-1.5 top-3 opacity-0 group-hover/exp:opacity-100 focus-within:opacity-100 transition-opacity items-center justify-center p-1 text-[#6E6A62] hover:text-[#1F1F1B] rounded cursor-grab active:cursor-grabbing outline-none focus-visible:ring-1 focus-visible:ring-[#AAC06A]"
+        className="hidden lg:flex absolute left-1.5 top-3 opacity-0 group-hover/exp:opacity-100 focus-within:opacity-100 transition-opacity items-center justify-center p-1 text-[#6E6A62] hover:text-[#1F1F1B] rounded cursor-grab active:cursor-grabbing outline-none focus-visible:ring-1 focus-visible:ring-[#AAC06A]"
         {...attributes}
         {...listeners}
         aria-label={experience.company ? `Reorder ${experience.company}` : "Reorder experience"}
