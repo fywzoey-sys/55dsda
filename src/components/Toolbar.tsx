@@ -47,6 +47,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({ currentResumeName, saveStatus 
         {/* Template Selector Placeholder */}
         <div className="flex items-center">
           <button
+            type="button"
             disabled
             aria-disabled="true"
             className="px-3 py-1.5 rounded-lg text-xs font-medium bg-[#E2DACF]/40 text-[#6E6A62] cursor-not-allowed opacity-80"
@@ -58,6 +59,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({ currentResumeName, saveStatus 
 
         {/* Preview Button */}
         <button
+          type="button"
           disabled
           aria-disabled="true"
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-[#6E6A62] bg-[#E2DACF]/40 cursor-not-allowed opacity-80"
@@ -69,6 +71,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({ currentResumeName, saveStatus 
 
         {/* Export PDF Button */}
         <button
+          type="button"
           disabled
           aria-disabled="true"
           className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-medium text-[#6E6A62] bg-[#E2DACF]/40 cursor-not-allowed opacity-80"

@@ -10,6 +10,7 @@ import { ResumePaper } from './components/ResumePaper';
 import { RightPanel } from './components/RightPanel';
 import { mockResumes } from './data/mockData';
 import { Resume, RightTabType } from './types';
+import { isValidResumeRecord } from './utils/validation';
 import { Menu, X } from 'lucide-react';
 
 const STORAGE_KEY = 'resume-space:resumes:v1';
@@ -20,22 +21,16 @@ function loadInitialResumes(): Record<string, Resume> {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       const parsed = JSON.parse(stored);
-      if (
-        parsed &&
-        typeof parsed === 'object' &&
-        parsed['pm-resume'] &&
-        parsed['growth-resume'] &&
-        parsed['consulting-resume'] &&
-        Array.isArray(parsed['pm-resume'].sections)
-      ) {
-        return parsed as Record<string, Resume>;
+      if (isValidResumeRecord(parsed)) {
+        return parsed;
       }
+      console.warn('LocalStorage data failed comprehensive validation, falling back to mock data safely.');
     }
   } catch (err) {
     console.warn('Failed to parse resumes from LocalStorage, falling back to mock data:', err);
   }
 
-  // Safe fallback to cloned initial mock data
+  // Safe fallback to deep-cloned initial mock data
   return JSON.parse(JSON.stringify(mockResumes));
 }
 
@@ -49,6 +44,51 @@ export default function App() {
 
   const isInitialMount = useRef<boolean>(true);
   const debounceTimerRef = useRef<number | null>(null);
+  const latestResumesRef = useRef<Record<string, Resume>>(resumes);
+
+  // Keep latestResumesRef always up to date
+  useEffect(() => {
+    latestResumesRef.current = resumes;
+  }, [resumes]);
+
+  // Synchronous flush helper for page unload/visibility change
+  const flushSave = useCallback(() => {
+    if (debounceTimerRef.current !== null) {
+      window.clearTimeout(debounceTimerRef.current);
+      debounceTimerRef.current = null;
+    }
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(latestResumesRef.current));
+      setSaveStatus('saved');
+    } catch (err) {
+      console.error('Failed to flush save to LocalStorage:', err);
+      setSaveStatus('error');
+    }
+  }, []);
+
+  // Register pagehide and visibilitychange handlers to prevent data loss on closing/refreshing
+  useEffect(() => {
+    const handlePageHide = () => {
+      flushSave();
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        flushSave();
+      }
+    };
+
+    window.addEventListener('pagehide', handlePageHide);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener('pagehide', handlePageHide);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      if (debounceTimerRef.current !== null) {
+        window.clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, [flushSave]);
 
   // Debounced Autosave to LocalStorage
   useEffect(() => {
@@ -104,16 +144,18 @@ export default function App() {
       {/* Mobile Top Header */}
       <div className="lg:hidden flex items-center justify-between bg-[#EFE7D9] px-4 py-3 rounded-2xl mb-4 border border-[#E2DACF]">
         <button
+          type="button"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="p-1.5 rounded-lg bg-[#FFFEFA] text-[#1F1F1B] shadow-sm"
+          className="p-1.5 rounded-lg bg-[#FFFEFA] text-[#1F1F1B] shadow-sm cursor-pointer"
           aria-label="Toggle Navigation"
         >
           {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
         <span className="font-semibold text-sm">Resume Space</span>
         <button
+          type="button"
           onClick={() => setMobileRightOpen(!mobileRightOpen)}
-          className="p-1.5 rounded-lg bg-[#FFFEFA] text-[#1F1F1B] shadow-sm text-xs font-medium px-3"
+          className="p-1.5 rounded-lg bg-[#FFFEFA] text-[#1F1F1B] shadow-sm text-xs font-medium px-3 cursor-pointer"
         >
           {rightTab === 'Job Description' ? 'JD' : 'Library'}
         </button>

@@ -30,6 +30,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* Main Navigation */}
         <nav className="space-y-1 mb-6">
           <button
+            type="button"
             disabled
             aria-disabled="true"
             title="Available in a future phase"
@@ -39,6 +40,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <span>Home</span>
           </button>
           <button
+            type="button"
             disabled
             aria-disabled="true"
             title="Available in Phase 3"
@@ -62,6 +64,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               return (
                 <button
                   key={resume.id}
+                  type="button"
                   onClick={() => onSelectResume(resume.id)}
                   aria-current={isSelected ? 'page' : undefined}
                   className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1F1F1B]/20 ${
@@ -86,6 +89,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* New Resume Button */}
       <div className="pt-2 border-t border-[#AAC06A]/30">
         <button
+          type="button"
           disabled
           aria-disabled="true"
           title="Available in Phase 3"

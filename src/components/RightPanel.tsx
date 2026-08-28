@@ -22,9 +22,10 @@ export const RightPanel: React.FC<RightPanelProps> = ({
       {/* Top Tabs */}
       <div className="flex bg-white/30 p-1 rounded-2xl mb-4">
         <button
+          type="button"
           onClick={() => onTabChange('Job Description')}
           aria-selected={activeTab === 'Job Description'}
-          className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1F1F1B]/20 ${
+          className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1F1F1B]/20 cursor-pointer ${
             activeTab === 'Job Description'
               ? 'bg-white/60 text-[#1F1F1B] font-semibold shadow-sm'
               : 'text-[#6E6A62] hover:text-[#1F1F1B]'
@@ -34,9 +35,10 @@ export const RightPanel: React.FC<RightPanelProps> = ({
           <span>Job Description</span>
         </button>
         <button
+          type="button"
           onClick={() => onTabChange('Library')}
           aria-selected={activeTab === 'Library'}
-          className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1F1F1B]/20 ${
+          className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1F1F1B]/20 cursor-pointer ${
             activeTab === 'Library'
               ? 'bg-white/60 text-[#1F1F1B] font-semibold shadow-sm'
               : 'text-[#6E6A62] hover:text-[#1F1F1B]'
@@ -99,6 +101,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({
                     >
                       <p className="leading-relaxed flex-1 mt-0.5">{bullet.text}</p>
                       <button
+                        type="button"
                         disabled
                         aria-disabled="true"
                         className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 transition-all duration-150 opacity-0 group-hover:opacity-100 bg-[#AAC06A]/20 text-[#6E6A62] cursor-not-allowed focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1F1F1B]/20"

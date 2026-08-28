@@ -438,10 +438,11 @@ export const ResumePaper: React.FC<ResumePaperProps> = ({ resume, onUpdateResume
                                 className="text-xs text-[#6E6A62] font-medium bg-transparent border-0 outline-none p-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 text-right w-16"
                               />
                               <button
+                                type="button"
                                 onClick={() => handleDeleteExperience(section.id, exp.id)}
                                 title="Delete experience"
                                 aria-label="Delete experience"
-                                className="opacity-0 group-hover/exp:opacity-100 focus-within:opacity-100 p-1 text-[#6E6A62] hover:text-red-600 rounded transition-opacity ml-1"
+                                className="opacity-0 group-hover/exp:opacity-100 focus-within:opacity-100 p-1 text-[#6E6A62] hover:text-red-600 rounded transition-opacity ml-1 cursor-pointer"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
                               </button>
@@ -467,10 +468,11 @@ export const ResumePaper: React.FC<ResumePaperProps> = ({ resume, onUpdateResume
                                   className="flex-1 bg-transparent border-0 outline-none text-xs text-[#1F1F1B]/90 leading-relaxed p-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60"
                                 />
                                 <button
+                                  type="button"
                                   onClick={() => handleDeleteBullet(section.id, exp.id, bullet.id)}
                                   title="Delete bullet"
                                   aria-label="Delete bullet"
-                                  className="opacity-0 group-hover/bullet:opacity-100 focus-within:opacity-100 p-1 text-[#6E6A62] hover:text-red-600 rounded transition-opacity shrink-0 mt-0.5"
+                                  className="opacity-0 group-hover/bullet:opacity-100 focus-within:opacity-100 p-1 text-[#6E6A62] hover:text-red-600 rounded transition-opacity shrink-0 mt-0.5 cursor-pointer"
                                 >
                                   <Trash2 className="w-3 h-3" />
                                 </button>
@@ -481,8 +483,9 @@ export const ResumePaper: React.FC<ResumePaperProps> = ({ resume, onUpdateResume
                           {/* Add bullet button */}
                           <div className="mt-1.5 pl-2">
                             <button
+                              type="button"
                               onClick={() => handleAddBullet(section.id, exp.id)}
-                              className="flex items-center gap-1 text-[11px] font-medium text-[#6E6A62] hover:text-[#1F1F1B] py-0.5 px-1.5 rounded hover:bg-black/[0.04] transition-colors"
+                              className="flex items-center gap-1 text-[11px] font-medium text-[#6E6A62] hover:text-[#1F1F1B] py-0.5 px-1.5 rounded hover:bg-black/[0.04] transition-colors cursor-pointer"
                             >
                               <Plus className="w-3 h-3" />
                               <span>Add bullet</span>
@@ -495,8 +498,9 @@ export const ResumePaper: React.FC<ResumePaperProps> = ({ resume, onUpdateResume
                     {/* Add Experience button */}
                     <div className="mt-2 pt-2 border-t border-[#E2DACF]/30">
                       <button
+                        type="button"
                         onClick={() => handleAddExperience(section.id)}
-                        className="flex items-center gap-1.5 text-xs font-medium text-[#6E6A62] hover:text-[#1F1F1B] py-1 px-2.5 rounded-lg hover:bg-black/[0.04] transition-colors"
+                        className="flex items-center gap-1.5 text-xs font-medium text-[#6E6A62] hover:text-[#1F1F1B] py-1 px-2.5 rounded-lg hover:bg-black/[0.04] transition-colors cursor-pointer"
                       >
                         <Plus className="w-3.5 h-3.5" />
                         <span>Add experience</span>
@@ -569,10 +573,11 @@ export const ResumePaper: React.FC<ResumePaperProps> = ({ resume, onUpdateResume
                                   className="flex-1 bg-transparent border-0 outline-none text-xs text-[#1F1F1B]/90 leading-relaxed p-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60"
                                 />
                                 <button
+                                  type="button"
                                   onClick={() => handleDeleteBullet(section.id, proj.id, bullet.id)}
                                   title="Delete bullet"
                                   aria-label="Delete bullet"
-                                  className="opacity-0 group-hover/bullet:opacity-100 focus-within:opacity-100 p-1 text-[#6E6A62] hover:text-red-600 rounded transition-opacity shrink-0 mt-0.5"
+                                  className="opacity-0 group-hover/bullet:opacity-100 focus-within:opacity-100 p-1 text-[#6E6A62] hover:text-red-600 rounded transition-opacity shrink-0 mt-0.5 cursor-pointer"
                                 >
                                   <Trash2 className="w-3 h-3" />
                                 </button>
@@ -583,8 +588,9 @@ export const ResumePaper: React.FC<ResumePaperProps> = ({ resume, onUpdateResume
                           {/* Add bullet button */}
                           <div className="mt-1.5 pl-2">
                             <button
+                              type="button"
                               onClick={() => handleAddBullet(section.id, proj.id)}
-                              className="flex items-center gap-1 text-[11px] font-medium text-[#6E6A62] hover:text-[#1F1F1B] py-0.5 px-1.5 rounded hover:bg-black/[0.04] transition-colors"
+                              className="flex items-center gap-1 text-[11px] font-medium text-[#6E6A62] hover:text-[#1F1F1B] py-0.5 px-1.5 rounded hover:bg-black/[0.04] transition-colors cursor-pointer"
                             >
                               <Plus className="w-3 h-3" />
                               <span>Add bullet</span>
