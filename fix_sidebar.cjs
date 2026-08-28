@@ -1,4 +1,6 @@
-import { Home, FileText, Plus, BookOpen, Layers, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+const fs = require('fs');
+
+const code = `import { Home, FileText, Plus, BookOpen, Layers, MoreHorizontal, Pencil, Trash2, X } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 
 interface SidebarProps {
@@ -118,7 +120,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 return (
                   <div key={resume.id} className="relative resume-item-menu group">
                     {isEditing ? (
-                      <div className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-medium bg-white/60 shadow-inner`}>
+                      <div className={\`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-medium bg-white/60 shadow-inner\`}>
                         <FileText className="w-4 h-4 text-[#1F1F1B]" />
                         <input
                           ref={inputRef}
@@ -133,16 +135,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     ) : (
                       <div
                         onClick={() => onSelectResume(resume.id)}
-                        className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-medium transition-all duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1F1F1B]/20 ${
+                        className={\`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-medium transition-all duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1F1F1B]/20 \${
                           isSelected
                             ? 'bg-white/40 text-[#1F1F1B] shadow-sm font-semibold'
                             : 'text-[#6E6A62] hover:text-[#1F1F1B] hover:bg-[#EFE7D9]/40'
-                        }`}
+                        }\`}
                       >
                         <FileText
-                          className={`w-4 h-4 ${
+                          className={\`w-4 h-4 \${
                             isSelected ? 'text-[#1F1F1B]' : 'text-[#6E6A62]'
-                          }`}
+                          }\`}
                         />
                         <span className="truncate flex-1">{resume.name}</span>
                         
@@ -152,7 +154,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                             e.stopPropagation();
                             setMenuOpenId(isMenuOpen ? null : resume.id);
                           }}
-                          className={`p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/5 ${isMenuOpen || isSelected ? 'opacity-100' : ''}`}
+                          className={\`p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/5 \${isMenuOpen || isSelected ? 'opacity-100' : ''}\`}
                         >
                           <MoreHorizontal className="w-3.5 h-3.5 text-[#6E6A62]" />
                         </button>
@@ -238,3 +240,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
     </>
   );
 };
+`;
+
+fs.writeFileSync('src/components/Sidebar.tsx', code);

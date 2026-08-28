@@ -10,33 +10,52 @@ import { ResumePaper } from './components/ResumePaper';
 import { RightPanel } from './components/RightPanel';
 import { mockResumes } from './data/mockData';
 import { Resume, RightTabType } from './types';
-import { isValidResumeRecord } from './utils/validation';
+import { isValidResumeRecord, isValidResumeArray, isResume } from './utils/validation';
 import { Menu, X, Briefcase, BookOpen } from 'lucide-react';
 
-const STORAGE_KEY = 'resume-space:resumes:v1';
+const STORAGE_KEY_V2 = 'resume-space:data:v2';
+const STORAGE_KEY_V1 = 'resume-space:resumes:v1';
 const AUTOSAVE_DEBOUNCE_MS = 600;
 
-function loadInitialResumes(): Record<string, Resume> {
+function loadStorage(): { resumes: Resume[]; activeResumeId: string } {
   try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      if (isValidResumeRecord(parsed)) {
-        return parsed;
+    const storedV2 = localStorage.getItem(STORAGE_KEY_V2);
+    if (storedV2) {
+      const parsed = JSON.parse(storedV2);
+      if (parsed && Array.isArray(parsed.resumes) && typeof parsed.activeResumeId === 'string') {
+        if (isValidResumeArray(parsed.resumes)) {
+          return { resumes: parsed.resumes, activeResumeId: parsed.activeResumeId };
+        }
       }
-      console.warn('LocalStorage data failed comprehensive validation, falling back to mock data safely.');
+    }
+
+    const storedV1 = localStorage.getItem(STORAGE_KEY_V1);
+    if (storedV1) {
+      const parsed = JSON.parse(storedV1);
+      if (isValidResumeRecord(parsed)) {
+        const arr = Object.values(parsed);
+        if (arr.length > 0) {
+          return { resumes: arr, activeResumeId: arr[0].id };
+        }
+      } else if (isResume(parsed)) {
+        return { resumes: [parsed], activeResumeId: parsed.id };
+      }
     }
   } catch (err) {
     console.warn('Failed to parse resumes from LocalStorage, falling back to mock data:', err);
   }
 
-  // Safe fallback to deep-cloned initial mock data
-  return JSON.parse(JSON.stringify(mockResumes));
+  const mockArr = Object.values(mockResumes);
+  return {
+    resumes: JSON.parse(JSON.stringify(mockArr)),
+    activeResumeId: mockArr[0].id
+  };
 }
 
 export default function App() {
-  const [resumes, setResumes] = useState<Record<string, Resume>>(loadInitialResumes);
-  const [currentResumeId, setCurrentResumeId] = useState<string>('pm-resume');
+  const initialData = useRef(loadStorage());
+  const [resumes, setResumes] = useState<Resume[]>(initialData.current.resumes);
+  const [currentResumeId, setCurrentResumeId] = useState<string>(initialData.current.activeResumeId);
   const [rightTab, setRightTab] = useState<RightTabType>('Job Description');
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const [mobileRightOpen, setMobileRightOpen] = useState<boolean>(false);
@@ -44,12 +63,11 @@ export default function App() {
 
   const isInitialMount = useRef<boolean>(true);
   const debounceTimerRef = useRef<number | null>(null);
-  const latestResumesRef = useRef<Record<string, Resume>>(resumes);
+  const latestDataRef = useRef({ resumes, activeResumeId: currentResumeId });
 
-  // Keep latestResumesRef always up to date
   useEffect(() => {
-    latestResumesRef.current = resumes;
-  }, [resumes]);
+    latestDataRef.current = { resumes, activeResumeId: currentResumeId };
+  }, [resumes, currentResumeId]);
 
   // Synchronous flush helper for page unload/visibility change
   const flushSave = useCallback(() => {
@@ -58,7 +76,7 @@ export default function App() {
       debounceTimerRef.current = null;
     }
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(latestResumesRef.current));
+      localStorage.setItem(STORAGE_KEY_V2, JSON.stringify(latestDataRef.current));
       setSaveStatus('saved');
     } catch (err) {
       console.error('Failed to flush save to LocalStorage:', err);
@@ -105,7 +123,7 @@ export default function App() {
 
     debounceTimerRef.current = window.setTimeout(() => {
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(resumes));
+        localStorage.setItem(STORAGE_KEY_V2, JSON.stringify({ resumes, activeResumeId: currentResumeId }));
         setSaveStatus('saved');
       } catch (err) {
         console.error('Failed to save to LocalStorage:', err);
@@ -118,7 +136,7 @@ export default function App() {
         window.clearTimeout(debounceTimerRef.current);
       }
     };
-  }, [resumes]);
+  }, [resumes, currentResumeId]);
 
   
   // Escape key to close drawers
@@ -133,23 +151,61 @@ export default function App() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  const resumesList = [
-    { id: 'pm-resume', name: resumes['pm-resume']?.name || 'PM Resume' },
-    { id: 'growth-resume', name: resumes['growth-resume']?.name || 'Growth Resume' },
-    { id: 'consulting-resume', name: resumes['consulting-resume']?.name || 'Consulting Resume' },
-  ];
+  const resumesList = resumes.map(r => ({ id: r.id, name: r.name || 'Untitled Resume' }));
 
-  const currentResume = resumes[currentResumeId] || resumes['pm-resume'] || mockResumes['pm-resume'];
+  const currentResume = resumes.find(r => r.id === currentResumeId) || resumes[0];
 
   const handleUpdateResume = useCallback((updatedResume: Resume) => {
-    setResumes((prev) => ({
-      ...prev,
-      [updatedResume.id]: {
-        ...updatedResume,
-        updatedAt: new Date().toISOString(),
-      },
-    }));
+    setResumes((prev) => prev.map(r => r.id === updatedResume.id ? { ...updatedResume, updatedAt: new Date().toISOString() } : r));
   }, []);
+
+  const handleCreateResume = useCallback(() => {
+    const newId = `resume-${Date.now()}`;
+    const newResume: Resume = {
+      id: newId,
+      name: 'Untitled Resume',
+      template: 'Classic',
+      jd: '',
+      fullName: '',
+      title: '',
+      contact: { email: '', phone: '', location: '', linkedin: '' },
+      sections: [
+        { 
+          id: 'sec-edu', type: 'education', title: 'Education', 
+          items: [{ id: `edu-${Date.now()}`, school: '', degree: '', startDate: '', endDate: '' }] 
+        },
+        { 
+          id: 'sec-exp', type: 'experience', title: 'Experience', 
+          items: [{ id: `exp-${Date.now()}`, company: '', role: '', startDate: '', endDate: '', bullets: [{ id: `bul-${Date.now()}`, text: '' }] }] 
+        },
+        { 
+          id: 'sec-proj', type: 'projects', title: 'Projects', 
+          items: [{ id: `proj-${Date.now()}`, name: '', role: '', startDate: '', endDate: '', bullets: [{ id: `pbul-${Date.now()}`, text: '' }] }] 
+        },
+      ],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    setResumes(prev => [...prev, newResume]);
+    setCurrentResumeId(newId);
+  }, []);
+
+  const handleRenameResume = useCallback((id: string, newName: string) => {
+    setResumes(prev => prev.map(r => r.id === id ? { ...r, name: newName || 'Untitled Resume', updatedAt: new Date().toISOString() } : r));
+  }, []);
+
+  const handleDeleteResume = useCallback((id: string) => {
+    setResumes(prev => {
+      if (prev.length <= 1) return prev;
+      const filtered = prev.filter(r => r.id !== id);
+      if (currentResumeId === id) {
+        const index = prev.findIndex(r => r.id === id);
+        const nextIndex = Math.min(index, filtered.length - 1);
+        setCurrentResumeId(filtered[nextIndex].id);
+      }
+      return filtered;
+    });
+  }, [currentResumeId]);
 
   return (
     <div className="h-screen h-[100dvh] overflow-hidden bg-[#F6F1E7] text-[#1F1F1B] font-sans flex flex-col p-0 lg:p-5 selection:bg-[#D9DFAD]/50">
@@ -221,6 +277,9 @@ export default function App() {
               setMobileMenuOpen(false);
             }}
             resumes={resumesList}
+            onCreateResume={handleCreateResume}
+            onRenameResume={handleRenameResume}
+            onDeleteResume={handleDeleteResume}
           />
         </div>
 

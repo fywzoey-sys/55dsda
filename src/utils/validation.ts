@@ -88,7 +88,7 @@ function isResumeSection(val: unknown): val is ResumeSection {
   return false;
 }
 
-function isResume(val: unknown): val is Resume {
+export function isResume(val: unknown): val is Resume {
   if (!isObject(val)) return false;
   if (
     !isString(val.id) ||
@@ -107,6 +107,10 @@ function isResume(val: unknown): val is Resume {
   }
 
   return val.sections.every(isResumeSection);
+}
+
+export function isValidResumeArray(val: unknown): val is Resume[] {
+  return Array.isArray(val) && val.every(isResume);
 }
 
 export function isValidResumeRecord(val: unknown): val is Record<string, Resume> {
