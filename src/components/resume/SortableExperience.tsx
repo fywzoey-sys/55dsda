@@ -101,7 +101,7 @@ export const SortableExperience: React.FC<SortableExperienceProps> = ({
           value={experience.company}
           onChange={(e) => onUpdate(sectionId, experience.id, 'company', e.target.value)}
           placeholder="Company Name"
-          className="font-semibold text-[#1F1F1B] text-[16px] md:text-sm bg-transparent border-0 outline-none p-0.5 -ml-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 flex-1 min-w-0 w-full sm:w-auto"
+          className="font-semibold text-[#1F1F1B] text-base lg:text-sm bg-transparent border-0 outline-none p-0.5 -ml-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 flex-1 min-w-0 w-full sm:w-auto"
         />
         <div className="flex items-center gap-1 shrink-0 sm:ml-2 relative mt-1 sm:mt-0 w-full sm:w-auto" style={{ fontVariantNumeric: 'tabular-nums' }}>
           <input
@@ -109,15 +109,15 @@ export const SortableExperience: React.FC<SortableExperienceProps> = ({
             value={experience.startDate}
             onChange={(e) => onUpdate(sectionId, experience.id, 'startDate', e.target.value)}
             placeholder="Start"
-            className="text-[16px] md:text-xs text-[#6E6A62] font-medium bg-transparent border-0 outline-none p-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 text-right w-16 md:w-16 flex-1 sm:flex-none"
+            className="text-base lg:text-xs text-[#6E6A62] font-medium bg-transparent border-0 outline-none p-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 text-right w-16 lg:w-16 flex-1 sm:flex-none min-w-0"
           />
-          <span className="text-[16px] md:text-xs text-[#6E6A62] font-medium">–</span>
+          <span className="text-base lg:text-xs text-[#6E6A62] font-medium shrink-0">–</span>
           <input
             type="text"
             value={experience.endDate}
             onChange={(e) => onUpdate(sectionId, experience.id, 'endDate', e.target.value)}
             placeholder="End"
-            className="text-[16px] md:text-xs text-[#6E6A62] font-medium bg-transparent border-0 outline-none p-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 text-right w-16 md:w-16 flex-1 sm:flex-none"
+            className="text-base lg:text-xs text-[#6E6A62] font-medium bg-transparent border-0 outline-none p-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 text-right w-16 lg:w-16 flex-1 sm:flex-none min-w-0"
           />
           
           {/* More Menu */}
@@ -125,7 +125,7 @@ export const SortableExperience: React.FC<SortableExperienceProps> = ({
             <button
               type="button"
               onClick={handleMenuClick}
-              className="opacity-100 md:opacity-0 md:group-hover/exp:opacity-100 md:focus-within:opacity-100 p-1 text-[#6E6A62] hover:text-[#1F1F1B] rounded transition-opacity cursor-pointer outline-none focus-visible:ring-1 focus-visible:ring-[#AAC06A]"
+              className="opacity-100 lg:opacity-0 lg:group-hover/exp:opacity-100 lg:focus-within:opacity-100 p-1 text-[#6E6A62] hover:text-[#1F1F1B] rounded transition-opacity cursor-pointer outline-none focus-visible:ring-1 focus-visible:ring-[#AAC06A]"
               aria-label="Experience options"
               aria-expanded={menuOpen}
             >
@@ -170,7 +170,7 @@ export const SortableExperience: React.FC<SortableExperienceProps> = ({
         value={experience.role}
         onChange={(e) => onUpdate(sectionId, experience.id, 'role', e.target.value)}
         placeholder="Job Title / Role"
-        className="text-[16px] md:text-xs font-medium text-[#6E6A62] bg-transparent border-0 outline-none p-0.5 -ml-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 w-full mb-1"
+        className="text-base lg:text-xs font-medium text-[#6E6A62] bg-transparent border-0 outline-none p-0.5 -ml-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 w-full mb-1 min-w-0"
       />
       
       {/* Bullet points Context */}

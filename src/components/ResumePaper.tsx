@@ -437,7 +437,7 @@ const handleAddBullet = (sectionId: string, parentId: string) => {
     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd} modifiers={[restrictToVerticalAxis, restrictToParentElement]}>
     <div className="flex justify-center w-full pb-8">
       <div 
-        className="w-full max-w-[740px] aspect-[210/297] bg-[#FFFEFA] rounded-[14px] p-10 md:p-14 text-[#1F1F1B] font-sans selection:bg-[#D9DFAD]/50"
+        className="w-full max-w-[740px] aspect-auto lg:aspect-[210/297] bg-[#FFFEFA] rounded-xl lg:rounded-[14px] p-5 sm:p-8 lg:p-14 text-[#1F1F1B] font-sans selection:bg-[#D9DFAD]/50 relative shadow-sm ring-1 ring-black/[0.03] overflow-hidden"
         style={{
           boxShadow: '0 8px 30px rgba(31, 31, 27, 0.06)',
           border: '1px solid rgba(226, 218, 207, 0.45)'
@@ -445,57 +445,57 @@ const handleAddBullet = (sectionId: string, parentId: string) => {
       >
         
         {/* Header */}
-        <div className="border-b border-[#E2DACF]/60 pb-5 mb-6 text-center sm:text-left flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-          <div className="flex-1 min-w-0">
+        <div className="border-b border-[#E2DACF]/60 pb-5 mb-6 text-left flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+          <div className="flex-1 min-w-0 w-full sm:w-auto">
             <input
               type="text"
               value={resume.fullName}
               onChange={(e) => handleUpdateHeader('fullName', e.target.value)}
               placeholder="Your Full Name"
-              className="font-serif text-3xl font-bold tracking-tight text-[#1F1F1B] bg-transparent border-0 outline-none w-full p-1 -ml-1 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60"
+              className="font-serif text-3xl font-bold tracking-tight text-[#1F1F1B] bg-transparent border-0 outline-none w-full p-1 -ml-1 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 min-w-0"
             />
             <input
               type="text"
               value={resume.title}
               onChange={(e) => handleUpdateHeader('title', e.target.value)}
               placeholder="Target Role / Professional Title"
-              className="text-sm font-medium text-[#6E6A62] bg-transparent border-0 outline-none w-full p-1 -ml-1 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 mt-0.5"
+              className="text-base lg:text-sm font-medium text-[#6E6A62] bg-transparent border-0 outline-none w-full p-1 -ml-1 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 mt-0.5 min-w-0"
             />
           </div>
-          <div className="text-xs text-[#6E6A62] sm:text-right space-y-1 shrink-0" style={{ fontVariantNumeric: 'tabular-nums' }}>
-            <div>
+          <div className="text-base lg:text-xs text-[#6E6A62] sm:text-right space-y-1.5 sm:space-y-1 shrink-0 w-full sm:w-auto" style={{ fontVariantNumeric: 'tabular-nums' }}>
+            <div className="w-full sm:w-auto">
               <input
                 type="text"
                 value={resume.contact.email}
                 onChange={(e) => handleUpdateContact('email', e.target.value)}
                 placeholder="email@domain.com"
-                className="text-xs text-[#6E6A62] bg-transparent border-0 outline-none p-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 sm:text-right w-full sm:w-auto"
+                className="text-base lg:text-xs text-[#6E6A62] bg-transparent border-0 outline-none p-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 sm:text-right w-full sm:w-auto min-w-0"
               />
             </div>
-            <div className="flex items-center sm:justify-end gap-1">
+            <div className="flex items-center sm:justify-end gap-1 w-full sm:w-auto">
               <input
                 type="text"
                 value={resume.contact.phone}
                 onChange={(e) => handleUpdateContact('phone', e.target.value)}
                 placeholder="Phone"
-                className="text-xs text-[#6E6A62] bg-transparent border-0 outline-none p-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 sm:text-right w-28"
+                className="text-base lg:text-xs text-[#6E6A62] bg-transparent border-0 outline-none p-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 sm:text-right flex-1 sm:flex-none sm:w-28 min-w-0"
               />
-              <span>·</span>
+              <span className="shrink-0">·</span>
               <input
                 type="text"
                 value={resume.contact.location}
                 onChange={(e) => handleUpdateContact('location', e.target.value)}
                 placeholder="Location"
-                className="text-xs text-[#6E6A62] bg-transparent border-0 outline-none p-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 sm:text-right w-24"
+                className="text-base lg:text-xs text-[#6E6A62] bg-transparent border-0 outline-none p-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 sm:text-right flex-1 sm:flex-none sm:w-24 min-w-0"
               />
             </div>
-            <div>
+            <div className="w-full sm:w-auto">
               <input
                 type="text"
                 value={resume.contact.linkedin}
                 onChange={(e) => handleUpdateContact('linkedin', e.target.value)}
                 placeholder="linkedin.com/in/username"
-                className="text-xs text-[#6E6A62] bg-transparent border-0 outline-none p-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 sm:text-right w-full sm:w-auto"
+                className="text-base lg:text-xs text-[#6E6A62] bg-transparent border-0 outline-none p-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 sm:text-right w-full sm:w-auto min-w-0"
               />
             </div>
           </div>
@@ -514,7 +514,7 @@ const handleAddBullet = (sectionId: string, parentId: string) => {
                         value={section.title}
                         onChange={(e) => handleUpdateSectionTitle(section.id, e.target.value)}
                         placeholder="Section Title"
-                        className="text-[16px] md:text-xs font-semibold uppercase tracking-wider text-[#6E6A62] bg-transparent border-0 outline-none p-0.5 -ml-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 flex-1"
+                        className="text-base lg:text-xs font-semibold uppercase tracking-wider text-[#6E6A62] bg-transparent border-0 outline-none p-0.5 -ml-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 flex-1 min-w-0"
                       />
                     </div>
                     <div className="space-y-2">
@@ -529,23 +529,23 @@ const handleAddBullet = (sectionId: string, parentId: string) => {
                               value={edu.school}
                               onChange={(e) => handleUpdateEducation(section.id, edu.id, 'school', e.target.value)}
                               placeholder="School / University"
-                              className="font-semibold text-[#1F1F1B] text-sm bg-transparent border-0 outline-none p-0.5 -ml-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 flex-1 min-w-0"
+                              className="font-semibold text-[#1F1F1B] text-base lg:text-sm bg-transparent border-0 outline-none p-0.5 -ml-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 flex-1 min-w-0"
                             />
-                            <div className="flex items-center gap-1 text-[16px] md:text-xs text-[#6E6A62] font-medium shrink-0 mt-1 sm:mt-0 sm:ml-2" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                            <div className="flex items-center gap-1 text-base lg:text-xs text-[#6E6A62] font-medium shrink-0 mt-1 sm:mt-0 sm:ml-2" style={{ fontVariantNumeric: 'tabular-nums' }}>
                               <input
                                 type="text"
                                 value={edu.startDate}
                                 onChange={(e) => handleUpdateEducation(section.id, edu.id, 'startDate', e.target.value)}
                                 placeholder="Start"
-                                className="text-xs text-[#6E6A62] font-medium bg-transparent border-0 outline-none p-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 text-right w-12"
+                                className="text-base lg:text-xs text-[#6E6A62] font-medium bg-transparent border-0 outline-none p-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 text-right w-14 lg:w-12 min-w-0"
                               />
-                              <span>–</span>
+                              <span className="shrink-0">–</span>
                               <input
                                 type="text"
                                 value={edu.endDate}
                                 onChange={(e) => handleUpdateEducation(section.id, edu.id, 'endDate', e.target.value)}
                                 placeholder="End"
-                                className="text-xs text-[#6E6A62] font-medium bg-transparent border-0 outline-none p-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 text-right w-12"
+                                className="text-base lg:text-xs text-[#6E6A62] font-medium bg-transparent border-0 outline-none p-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 text-right w-14 lg:w-12 min-w-0"
                               />
                             </div>
                           </div>
@@ -554,7 +554,7 @@ const handleAddBullet = (sectionId: string, parentId: string) => {
                             value={edu.degree}
                             onChange={(e) => handleUpdateEducation(section.id, edu.id, 'degree', e.target.value)}
                             placeholder="Degree · Major"
-                            className="text-xs text-[#6E6A62] bg-transparent border-0 outline-none p-0.5 -ml-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 w-full mt-0.5"
+                            className="text-base lg:text-xs text-[#6E6A62] bg-transparent border-0 outline-none p-0.5 -ml-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 w-full mt-0.5 min-w-0"
                           />
                         </div>
                       ))}
@@ -571,7 +571,7 @@ const handleAddBullet = (sectionId: string, parentId: string) => {
                         value={section.title}
                         onChange={(e) => handleUpdateSectionTitle(section.id, e.target.value)}
                         placeholder="Section Title"
-                        className="text-[16px] md:text-xs font-semibold uppercase tracking-wider text-[#6E6A62] bg-transparent border-0 outline-none p-0.5 -ml-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 flex-1"
+                        className="text-base lg:text-xs font-semibold uppercase tracking-wider text-[#6E6A62] bg-transparent border-0 outline-none p-0.5 -ml-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 flex-1 min-w-0"
                       />
                     </div>
                     <div className="space-y-4">
@@ -620,7 +620,7 @@ const handleAddBullet = (sectionId: string, parentId: string) => {
                         value={section.title}
                         onChange={(e) => handleUpdateSectionTitle(section.id, e.target.value)}
                         placeholder="Section Title"
-                        className="text-[16px] md:text-xs font-semibold uppercase tracking-wider text-[#6E6A62] bg-transparent border-0 outline-none p-0.5 -ml-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 flex-1"
+                        className="text-base lg:text-xs font-semibold uppercase tracking-wider text-[#6E6A62] bg-transparent border-0 outline-none p-0.5 -ml-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 flex-1 min-w-0"
                       />
                     </div>
                     <div className="space-y-3">
@@ -635,12 +635,12 @@ const handleAddBullet = (sectionId: string, parentId: string) => {
                               value={proj.name}
                               onChange={(e) => handleUpdateProject(section.id, proj.id, 'name', e.target.value)}
                               placeholder="Project Name"
-                              className="font-semibold text-[#1F1F1B] text-[16px] md:text-sm bg-transparent border-0 outline-none p-0.5 -ml-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 flex-1 min-w-0"
+                              className="font-semibold text-[#1F1F1B] text-base lg:text-sm bg-transparent border-0 outline-none p-0.5 -ml-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 flex-1 min-w-0"
                             />
-                            <div className="flex items-center gap-1 text-[16px] md:text-xs text-[#6E6A62] font-medium shrink-0 mt-1 sm:mt-0 sm:ml-2" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                              <input type="text" value={proj.startDate || ''} onChange={(e) => handleUpdateProject(section.id, proj.id, 'startDate', e.target.value)} placeholder="Start" className="text-[16px] md:text-xs text-[#6E6A62] font-medium bg-transparent border-0 outline-none p-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 text-right w-14 md:w-12" />
-                              <span>–</span>
-                              <input type="text" value={proj.endDate || ''} onChange={(e) => handleUpdateProject(section.id, proj.id, 'endDate', e.target.value)} placeholder="End" className="text-[16px] md:text-xs text-[#6E6A62] font-medium bg-transparent border-0 outline-none p-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 text-right w-14 md:w-12" />
+                            <div className="flex items-center gap-1 text-base lg:text-xs text-[#6E6A62] font-medium shrink-0 mt-1 sm:mt-0 sm:ml-2" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                              <input type="text" value={proj.startDate || ''} onChange={(e) => handleUpdateProject(section.id, proj.id, 'startDate', e.target.value)} placeholder="Start" className="text-base lg:text-xs text-[#6E6A62] font-medium bg-transparent border-0 outline-none p-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 text-right w-14 lg:w-12 min-w-0" />
+                              <span className="shrink-0">–</span>
+                              <input type="text" value={proj.endDate || ''} onChange={(e) => handleUpdateProject(section.id, proj.id, 'endDate', e.target.value)} placeholder="End" className="text-base lg:text-xs text-[#6E6A62] font-medium bg-transparent border-0 outline-none p-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 text-right w-14 lg:w-12 min-w-0" />
                             </div>
                           </div>
                           <input
@@ -648,7 +648,7 @@ const handleAddBullet = (sectionId: string, parentId: string) => {
                             value={proj.role}
                             onChange={(e) => handleUpdateProject(section.id, proj.id, 'role', e.target.value)}
                             placeholder="Project Role / Scope"
-                            className="text-[16px] md:text-xs font-medium text-[#6E6A62] bg-transparent border-0 outline-none p-0.5 -ml-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 w-full mb-1"
+                            className="text-base lg:text-xs font-medium text-[#6E6A62] bg-transparent border-0 outline-none p-0.5 -ml-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 w-full mb-1 min-w-0"
                           />
 
                           {/* Bullet points */}

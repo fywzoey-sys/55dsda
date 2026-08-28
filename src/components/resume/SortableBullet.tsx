@@ -71,13 +71,13 @@ export const SortableBullet: React.FC<SortableBulletProps> = ({
     <div 
       ref={setNodeRef} 
       style={style} 
-      className="group/bullet relative flex items-start gap-1 text-[16px] md:text-xs text-[#1F1F1B]/90 leading-relaxed md:-ml-6 md:pl-6 rounded transition-colors focus-within:bg-[#F6F1E7]/20 hover:bg-[#F6F1E7]/20"
+      className="group/bullet relative flex items-start gap-1 text-base lg:text-xs text-[#1F1F1B]/90 leading-relaxed lg:-ml-6 lg:pl-6 rounded transition-colors focus-within:bg-[#F6F1E7]/20 hover:bg-[#F6F1E7]/20"
     >
       {/* Drag Handle */}
       <button 
         type="button"
         ref={setActivatorNodeRef}
-        className="hidden md:flex absolute left-1 top-1 opacity-0 group-hover/bullet:opacity-100 focus-within:opacity-100 transition-opacity items-center justify-center p-0.5 text-[#6E6A62] hover:text-[#1F1F1B] rounded cursor-grab active:cursor-grabbing outline-none focus-visible:ring-1 focus-visible:ring-[#AAC06A]"
+        className="hidden lg:flex absolute left-1 top-1 opacity-0 group-hover/bullet:opacity-100 focus-within:opacity-100 transition-opacity items-center justify-center p-0.5 text-[#6E6A62] hover:text-[#1F1F1B] rounded cursor-grab active:cursor-grabbing outline-none focus-visible:ring-1 focus-visible:ring-[#AAC06A]"
         {...attributes}
         {...listeners}
         aria-label="Reorder bullet"
@@ -90,7 +90,7 @@ export const SortableBullet: React.FC<SortableBulletProps> = ({
         value={bullet.text}
         onChange={(text) => onUpdate(sectionId, parentId, bullet.id, text)}
         placeholder="Describe action, context, and tangible result..."
-        className="flex-1 bg-transparent border-0 outline-none text-[16px] md:text-xs text-[#1F1F1B]/90 leading-relaxed p-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60"
+        className="flex-1 bg-transparent border-0 outline-none text-base lg:text-xs text-[#1F1F1B]/90 leading-relaxed p-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 min-w-0"
       />
       
       {/* More Menu */}
@@ -98,7 +98,7 @@ export const SortableBullet: React.FC<SortableBulletProps> = ({
         <button
           type="button"
           onClick={handleMenuClick}
-          className="opacity-100 md:opacity-0 md:group-hover/bullet:opacity-100 md:focus-within:opacity-100 p-1 text-[#6E6A62] hover:text-[#1F1F1B] rounded transition-opacity cursor-pointer outline-none focus-visible:ring-1 focus-visible:ring-[#AAC06A]"
+          className="opacity-100 lg:opacity-0 lg:group-hover/bullet:opacity-100 lg:focus-within:opacity-100 p-1 text-[#6E6A62] hover:text-[#1F1F1B] rounded transition-opacity cursor-pointer outline-none focus-visible:ring-1 focus-visible:ring-[#AAC06A]"
           aria-label="Bullet options"
           aria-expanded={menuOpen}
         >
