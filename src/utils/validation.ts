@@ -110,7 +110,11 @@ export function isResume(val: unknown): val is Resume {
 }
 
 export function isValidResumeArray(val: unknown): val is Resume[] {
-  return Array.isArray(val) && val.every(isResume);
+  return (
+    Array.isArray(val) &&
+    val.length > 0 &&
+    val.every(isResume)
+  );
 }
 
 export function isValidResumeRecord(val: unknown): val is Record<string, Resume> {

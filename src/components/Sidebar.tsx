@@ -53,6 +53,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
     if (e.key === 'Escape') setEditingId(null);
   };
 
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && deleteConfirmId) {
+        setDeleteConfirmId(null);
+      }
+    };
+    window.addEventListener('keydown', handleEsc);
+    return () => window.removeEventListener('keydown', handleEsc);
+  }, [deleteConfirmId]);
+
   return (
     <>
       <aside className="w-full h-full flex-shrink-0 bg-[#D9DFAD] rounded-[20px] p-4 flex flex-col justify-between select-none overflow-y-auto">
@@ -132,6 +142,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       </div>
                     ) : (
                       <div
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            onSelectResume(resume.id);
+                          }
+                        }}
                         onClick={() => onSelectResume(resume.id)}
                         className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-medium transition-all duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1F1F1B]/20 ${
                           isSelected
@@ -153,6 +171,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                             setMenuOpenId(isMenuOpen ? null : resume.id);
                           }}
                           className={`p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/5 ${isMenuOpen || isSelected ? 'opacity-100' : ''}`}
+                          aria-label={`More options for ${resume.name}`}
                         >
                           <MoreHorizontal className="w-3.5 h-3.5 text-[#6E6A62]" />
                         </button>
@@ -209,9 +228,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Delete Confirmation Dialog */}
       {deleteConfirmId && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/20 p-4">
-          <div className="bg-[#FFFEFA] rounded-2xl shadow-xl w-full max-w-sm p-5 border border-[#E2DACF]">
-            <h3 className="text-sm font-semibold text-[#1F1F1B] mb-2">Delete resume?</h3>
+        <div 
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/20 p-4"
+          onClick={() => setDeleteConfirmId(null)}
+        >
+          <div 
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-dialog-title"
+            className="bg-[#FFFEFA] rounded-2xl shadow-xl w-full max-w-sm p-5 border border-[#E2DACF]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 id="delete-dialog-title" className="text-sm font-semibold text-[#1F1F1B] mb-2">Delete resume?</h3>
             <p className="text-xs text-[#6E6A62] mb-5">This resume will be removed from this browser.</p>
             <div className="flex justify-end gap-2">
               <button

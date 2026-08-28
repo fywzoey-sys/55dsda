@@ -22,9 +22,18 @@ function loadStorage(): { resumes: Resume[]; activeResumeId: string } {
     const storedV2 = localStorage.getItem(STORAGE_KEY_V2);
     if (storedV2) {
       const parsed = JSON.parse(storedV2);
-      if (parsed && Array.isArray(parsed.resumes) && typeof parsed.activeResumeId === 'string') {
+      if (parsed && Array.isArray(parsed.resumes)) {
         if (isValidResumeArray(parsed.resumes)) {
-          return { resumes: parsed.resumes, activeResumeId: parsed.activeResumeId };
+          // Verify unique IDs
+          const ids = new Set(parsed.resumes.map((r: Resume) => r.id));
+          if (ids.size === parsed.resumes.length) {
+            let validActiveId = parsed.activeResumeId;
+            if (typeof validActiveId !== 'string' || !ids.has(validActiveId)) {
+              validActiveId = parsed.resumes[0].id;
+              // we don't write here, but when the App renders, latestDataRef will eventually persist it
+            }
+            return { resumes: parsed.resumes, activeResumeId: validActiveId };
+          }
         }
       }
     }
@@ -32,23 +41,40 @@ function loadStorage(): { resumes: Resume[]; activeResumeId: string } {
     const storedV1 = localStorage.getItem(STORAGE_KEY_V1);
     if (storedV1) {
       const parsed = JSON.parse(storedV1);
+      let v1Resumes: Resume[] | null = null;
+      let v1ActiveId = '';
+      
       if (isValidResumeRecord(parsed)) {
         const arr = Object.values(parsed);
         if (arr.length > 0) {
-          return { resumes: arr, activeResumeId: arr[0].id };
+          v1Resumes = arr;
+          v1ActiveId = arr[0].id;
         }
       } else if (isResume(parsed)) {
-        return { resumes: [parsed], activeResumeId: parsed.id };
+        v1Resumes = [parsed];
+        v1ActiveId = parsed.id;
+      }
+      
+      if (v1Resumes && v1ActiveId) {
+        // Migrate to V2
+        try {
+          localStorage.setItem(STORAGE_KEY_V2, JSON.stringify({ resumes: v1Resumes, activeResumeId: v1ActiveId }));
+        } catch (e) {
+          console.warn('Failed to migrate V1 to V2:', e);
+        }
+        return { resumes: v1Resumes, activeResumeId: v1ActiveId };
       }
     }
   } catch (err) {
     console.warn('Failed to parse resumes from LocalStorage, falling back to mock data:', err);
   }
 
+  // Safe fallback
   const mockArr = Object.values(mockResumes);
+  const fallbackResumes = JSON.parse(JSON.stringify(mockArr));
   return {
-    resumes: JSON.parse(JSON.stringify(mockArr)),
-    activeResumeId: mockArr[0].id
+    resumes: fallbackResumes,
+    activeResumeId: fallbackResumes[0].id
   };
 }
 
