@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -41,6 +41,7 @@ export const SortableExperience: React.FC<SortableExperienceProps> = ({
     attributes,
     listeners,
     setNodeRef,
+    setActivatorNodeRef,
     transform,
     transition,
     isDragging,
@@ -53,6 +54,15 @@ export const SortableExperience: React.FC<SortableExperienceProps> = ({
   });
 
   const [menuOpen, setMenuOpen] = useState(false);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMenuOpen(false);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [menuOpen]);
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -74,14 +84,16 @@ export const SortableExperience: React.FC<SortableExperienceProps> = ({
       className="group/exp p-2.5 -mx-8 pl-8 rounded-lg transition-colors duration-100 hover:bg-[#F6F1E7]/40 relative"
     >
       {/* Drag Handle */}
-      <div 
+      <button 
+        type="button"
+        ref={setActivatorNodeRef}
         className="absolute left-1.5 top-3 opacity-0 group-hover/exp:opacity-100 focus-within:opacity-100 transition-opacity flex items-center justify-center p-1 text-[#6E6A62] hover:text-[#1F1F1B] rounded cursor-grab active:cursor-grabbing outline-none focus-visible:ring-1 focus-visible:ring-[#AAC06A]"
         {...attributes}
         {...listeners}
-        aria-label="Reorder experience"
+        aria-label={experience.company ? `Reorder ${experience.company}` : "Reorder experience"}
       >
         <GripVertical className="w-4 h-4" />
-      </div>
+      </button>
 
       <div className="flex justify-between items-baseline gap-2">
         <input

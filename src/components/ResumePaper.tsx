@@ -224,38 +224,53 @@ export const ResumePaper: React.FC<ResumePaperProps> = ({ resume, onUpdateResume
     const { active, over } = event;
     if (!over || active.id === over.id) return;
 
-    const type = active.data.current?.type;
-    const sectionId = active.data.current?.sectionId;
+    const activeType = active.data.current?.type;
+    const overType = over.data.current?.type;
+    const activeSectionId = active.data.current?.sectionId;
+    const overSectionId = over.data.current?.sectionId;
     
-    if (type === 'experience') {
+    if (
+      activeType === 'experience' &&
+      overType === 'experience' &&
+      activeSectionId === overSectionId
+    ) {
       onUpdateResume({
         ...resume,
         sections: resume.sections.map((section) => {
-          if (section.id !== sectionId || section.type !== 'experience') return section;
+          if (section.id !== activeSectionId || section.type !== 'experience') return section;
           const expSection = section as ExperienceSection;
           const oldIndex = expSection.items.findIndex(item => item.id === active.id);
           const newIndex = expSection.items.findIndex(item => item.id === over.id);
           
+          if (oldIndex < 0 || newIndex < 0 || oldIndex === newIndex) return section;
+
           return {
             ...expSection,
             items: arrayMove(expSection.items, oldIndex, newIndex),
           };
         }),
       });
-    } else if (type === 'bullet') {
-      const parentId = active.data.current?.parentId;
+    } else if (activeType === 'bullet' && overType === 'bullet' && activeSectionId === overSectionId) {
+      const activeParentId = active.data.current?.parentId;
+      const overParentId = over.data.current?.parentId;
+      
+      if (activeParentId !== overParentId) return;
+
       onUpdateResume({
         ...resume,
         sections: resume.sections.map((section) => {
-          if (section.id !== sectionId) return section;
+          if (section.id !== activeSectionId) return section;
           if (section.type === 'experience') {
             const expSection = section as ExperienceSection;
             return {
               ...expSection,
               items: expSection.items.map(exp => {
-                if (exp.id !== parentId) return exp;
+                if (exp.id !== activeParentId) return exp;
                 const oldIndex = exp.bullets.findIndex(b => b.id === active.id);
                 const newIndex = exp.bullets.findIndex(b => b.id === over.id);
+                
+                if (oldIndex < 0 || newIndex < 0 || oldIndex === newIndex) return exp;
+
                 return {
                   ...exp,
                   bullets: arrayMove(exp.bullets, oldIndex, newIndex),
@@ -267,9 +282,12 @@ export const ResumePaper: React.FC<ResumePaperProps> = ({ resume, onUpdateResume
             return {
               ...projSection,
               items: projSection.items.map(proj => {
-                if (proj.id !== parentId) return proj;
+                if (proj.id !== activeParentId) return proj;
                 const oldIndex = proj.bullets.findIndex(b => b.id === active.id);
                 const newIndex = proj.bullets.findIndex(b => b.id === over.id);
+                
+                if (oldIndex < 0 || newIndex < 0 || oldIndex === newIndex) return proj;
+
                 return {
                   ...proj,
                   bullets: arrayMove(proj.bullets, oldIndex, newIndex),

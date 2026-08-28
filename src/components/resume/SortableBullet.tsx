@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical, MoreHorizontal, ArrowUp, ArrowDown, Trash2 } from 'lucide-react';
@@ -32,6 +32,7 @@ export const SortableBullet: React.FC<SortableBulletProps> = ({
     attributes,
     listeners,
     setNodeRef,
+    setActivatorNodeRef,
     transform,
     transition,
     isDragging,
@@ -45,6 +46,15 @@ export const SortableBullet: React.FC<SortableBulletProps> = ({
   });
 
   const [menuOpen, setMenuOpen] = useState(false);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMenuOpen(false);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [menuOpen]);
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -64,14 +74,16 @@ export const SortableBullet: React.FC<SortableBulletProps> = ({
       className="group/bullet relative flex items-start gap-1 text-xs text-[#1F1F1B]/90 leading-relaxed -ml-6 pl-6 rounded transition-colors focus-within:bg-[#F6F1E7]/20 hover:bg-[#F6F1E7]/20"
     >
       {/* Drag Handle */}
-      <div 
+      <button 
+        type="button"
+        ref={setActivatorNodeRef}
         className="absolute left-1 top-1 opacity-0 group-hover/bullet:opacity-100 focus-within:opacity-100 transition-opacity flex items-center justify-center p-0.5 text-[#6E6A62] hover:text-[#1F1F1B] rounded cursor-grab active:cursor-grabbing outline-none focus-visible:ring-1 focus-visible:ring-[#AAC06A]"
         {...attributes}
         {...listeners}
         aria-label="Reorder bullet"
       >
         <GripVertical className="w-3.5 h-3.5" />
-      </div>
+      </button>
 
       <span className="select-none text-[#1F1F1B]/60 mt-1 shrink-0">•</span>
       <AutoResizeTextarea
