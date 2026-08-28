@@ -2,7 +2,10 @@ import { RightTabType, Resume } from '../types';
 import { libraryItems } from '../data/mockData';
 import { Briefcase, BookOpen, Plus } from 'lucide-react';
 
+import { X } from 'lucide-react';
+
 interface RightPanelProps {
+  onClose?: () => void;
   activeTab: RightTabType;
   onTabChange: (tab: RightTabType) => void;
   resume: Resume;
@@ -12,6 +15,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({
   activeTab,
   onTabChange,
   resume,
+  onClose,
 }) => {
   return (
     <aside 
@@ -19,7 +23,22 @@ export const RightPanel: React.FC<RightPanelProps> = ({
         activeTab === 'Job Description' ? 'bg-[#F5DCA9]' : 'bg-[#EFE7D9]'
       }`}
     >
+      
+      {/* Mobile Header */}
+      <div className="lg:hidden flex items-center justify-between mb-4">
+        <h2 className="font-semibold text-sm text-[#1F1F1B]">Context</h2>
+        <button
+          type="button"
+          onClick={onClose}
+          className="w-11 h-11 flex items-center justify-center rounded-lg bg-white/50 text-[#1F1F1B] hover:bg-white/80 transition-colors cursor-pointer"
+          aria-label="Close context panel"
+        >
+          <X className="w-5 h-5" />
+        </button>
+      </div>
+
       {/* Top Tabs */}
+
       <div className="flex bg-white/30 p-1 rounded-2xl mb-4">
         <button
           type="button"

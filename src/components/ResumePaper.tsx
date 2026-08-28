@@ -514,7 +514,7 @@ const handleAddBullet = (sectionId: string, parentId: string) => {
                         value={section.title}
                         onChange={(e) => handleUpdateSectionTitle(section.id, e.target.value)}
                         placeholder="Section Title"
-                        className="text-xs font-semibold uppercase tracking-wider text-[#6E6A62] bg-transparent border-0 outline-none p-0.5 -ml-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 flex-1"
+                        className="text-[16px] md:text-xs font-semibold uppercase tracking-wider text-[#6E6A62] bg-transparent border-0 outline-none p-0.5 -ml-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 flex-1"
                       />
                     </div>
                     <div className="space-y-2">
@@ -523,7 +523,7 @@ const handleAddBullet = (sectionId: string, parentId: string) => {
                           key={edu.id}
                           className="group/edu p-2 -mx-2 rounded-lg transition-colors duration-100 hover:bg-[#F6F1E7]/40"
                         >
-                          <div className="flex justify-between items-baseline gap-2">
+                          <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-baseline gap-1 sm:gap-2">
                             <input
                               type="text"
                               value={edu.school}
@@ -531,7 +531,7 @@ const handleAddBullet = (sectionId: string, parentId: string) => {
                               placeholder="School / University"
                               className="font-semibold text-[#1F1F1B] text-sm bg-transparent border-0 outline-none p-0.5 -ml-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 flex-1 min-w-0"
                             />
-                            <div className="flex items-center gap-1 text-xs text-[#6E6A62] font-medium shrink-0 ml-2" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                            <div className="flex items-center gap-1 text-[16px] md:text-xs text-[#6E6A62] font-medium shrink-0 mt-1 sm:mt-0 sm:ml-2" style={{ fontVariantNumeric: 'tabular-nums' }}>
                               <input
                                 type="text"
                                 value={edu.startDate}
@@ -571,7 +571,7 @@ const handleAddBullet = (sectionId: string, parentId: string) => {
                         value={section.title}
                         onChange={(e) => handleUpdateSectionTitle(section.id, e.target.value)}
                         placeholder="Section Title"
-                        className="text-xs font-semibold uppercase tracking-wider text-[#6E6A62] bg-transparent border-0 outline-none p-0.5 -ml-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 flex-1"
+                        className="text-[16px] md:text-xs font-semibold uppercase tracking-wider text-[#6E6A62] bg-transparent border-0 outline-none p-0.5 -ml-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 flex-1"
                       />
                     </div>
                     <div className="space-y-4">
@@ -620,7 +620,7 @@ const handleAddBullet = (sectionId: string, parentId: string) => {
                         value={section.title}
                         onChange={(e) => handleUpdateSectionTitle(section.id, e.target.value)}
                         placeholder="Section Title"
-                        className="text-xs font-semibold uppercase tracking-wider text-[#6E6A62] bg-transparent border-0 outline-none p-0.5 -ml-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 flex-1"
+                        className="text-[16px] md:text-xs font-semibold uppercase tracking-wider text-[#6E6A62] bg-transparent border-0 outline-none p-0.5 -ml-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 flex-1"
                       />
                     </div>
                     <div className="space-y-3">
@@ -629,30 +629,18 @@ const handleAddBullet = (sectionId: string, parentId: string) => {
                           key={proj.id}
                           className="group/proj p-2.5 -mx-2 rounded-lg transition-colors duration-100 hover:bg-[#F6F1E7]/40"
                         >
-                          <div className="flex justify-between items-baseline gap-2">
+                          <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-baseline gap-1 sm:gap-2">
                             <input
                               type="text"
                               value={proj.name}
                               onChange={(e) => handleUpdateProject(section.id, proj.id, 'name', e.target.value)}
                               placeholder="Project Name"
-                              className="font-semibold text-[#1F1F1B] text-sm bg-transparent border-0 outline-none p-0.5 -ml-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 flex-1 min-w-0"
+                              className="font-semibold text-[#1F1F1B] text-[16px] md:text-sm bg-transparent border-0 outline-none p-0.5 -ml-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 flex-1 min-w-0"
                             />
-                            <div className="flex items-center gap-1 text-xs text-[#6E6A62] font-medium shrink-0 ml-2" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                              <input
-                                type="text"
-                                value={proj.startDate || ''}
-                                onChange={(e) => handleUpdateProject(section.id, proj.id, 'startDate', e.target.value)}
-                                placeholder="Start"
-                                className="text-xs text-[#6E6A62] font-medium bg-transparent border-0 outline-none p-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 text-right w-12"
-                              />
+                            <div className="flex items-center gap-1 text-[16px] md:text-xs text-[#6E6A62] font-medium shrink-0 mt-1 sm:mt-0 sm:ml-2" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                              <input type="text" value={proj.startDate || ''} onChange={(e) => handleUpdateProject(section.id, proj.id, 'startDate', e.target.value)} placeholder="Start" className="text-[16px] md:text-xs text-[#6E6A62] font-medium bg-transparent border-0 outline-none p-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 text-right w-14 md:w-12" />
                               <span>–</span>
-                              <input
-                                type="text"
-                                value={proj.endDate || ''}
-                                onChange={(e) => handleUpdateProject(section.id, proj.id, 'endDate', e.target.value)}
-                                placeholder="End"
-                                className="text-xs text-[#6E6A62] font-medium bg-transparent border-0 outline-none p-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 text-right w-12"
-                              />
+                              <input type="text" value={proj.endDate || ''} onChange={(e) => handleUpdateProject(section.id, proj.id, 'endDate', e.target.value)} placeholder="End" className="text-[16px] md:text-xs text-[#6E6A62] font-medium bg-transparent border-0 outline-none p-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 text-right w-14 md:w-12" />
                             </div>
                           </div>
                           <input
@@ -660,7 +648,7 @@ const handleAddBullet = (sectionId: string, parentId: string) => {
                             value={proj.role}
                             onChange={(e) => handleUpdateProject(section.id, proj.id, 'role', e.target.value)}
                             placeholder="Project Role / Scope"
-                            className="text-xs font-medium text-[#6E6A62] bg-transparent border-0 outline-none p-0.5 -ml-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 w-full mb-1"
+                            className="text-[16px] md:text-xs font-medium text-[#6E6A62] bg-transparent border-0 outline-none p-0.5 -ml-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 w-full mb-1"
                           />
 
                           {/* Bullet points */}

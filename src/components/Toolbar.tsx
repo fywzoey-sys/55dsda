@@ -12,8 +12,8 @@ export const Toolbar: React.FC<ToolbarProps> = ({ currentResumeName, saveStatus 
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 px-1 py-3 mb-4">
       {/* Left info */}
-      <div className="flex items-center gap-3">
-        <span className="font-semibold text-sm text-[#1F1F1B]">
+      <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+        <span className="font-semibold text-sm text-[#1F1F1B] truncate max-w-[140px] sm:max-w-xs">
           {currentResumeName}
         </span>
         <span 
@@ -37,7 +37,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({ currentResumeName, saveStatus 
             </>
           )}
         </span>
-        <span className="text-[11px] text-[#6E6A62] font-medium hidden sm:inline-block">
+        <span className="text-[11px] text-[#6E6A62] font-medium hidden lg:inline-block">
           A4 preview
         </span>
       </div>
@@ -45,7 +45,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({ currentResumeName, saveStatus 
       {/* Middle & Right Controls */}
       <div className="flex items-center gap-3">
         {/* Template Selector Placeholder */}
-        <div className="flex items-center">
+        <div className="hidden lg:flex items-center">
           <button
             type="button"
             disabled
@@ -62,11 +62,11 @@ export const Toolbar: React.FC<ToolbarProps> = ({ currentResumeName, saveStatus 
           type="button"
           disabled
           aria-disabled="true"
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-[#6E6A62] bg-[#E2DACF]/40 cursor-not-allowed opacity-80"
+          className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-[#6E6A62] bg-[#E2DACF]/40 cursor-not-allowed opacity-80"
           title="Available in Phase 5"
         >
           <Eye className="w-3.5 h-3.5" />
-          <span className="hidden md:inline">Preview</span>
+          <span>Preview</span>
         </button>
 
         {/* Export PDF Button */}
@@ -74,7 +74,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({ currentResumeName, saveStatus 
           type="button"
           disabled
           aria-disabled="true"
-          className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-medium text-[#6E6A62] bg-[#E2DACF]/40 cursor-not-allowed opacity-80"
+          className="hidden md:flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-medium text-[#6E6A62] bg-[#E2DACF]/40 cursor-not-allowed opacity-80"
           title="Available in Phase 5"
         >
           <Download className="w-3.5 h-3.5" />

@@ -81,13 +81,13 @@ export const SortableExperience: React.FC<SortableExperienceProps> = ({
     <div
       ref={setNodeRef}
       style={style}
-      className="group/exp p-2.5 -mx-8 pl-8 rounded-lg transition-colors duration-100 hover:bg-[#F6F1E7]/40 relative"
+      className="group/exp p-2.5 md:-mx-8 md:pl-8 rounded-lg transition-colors duration-100 hover:bg-[#F6F1E7]/40 relative"
     >
       {/* Drag Handle */}
       <button 
         type="button"
         ref={setActivatorNodeRef}
-        className="absolute left-1.5 top-3 opacity-0 group-hover/exp:opacity-100 focus-within:opacity-100 transition-opacity flex items-center justify-center p-1 text-[#6E6A62] hover:text-[#1F1F1B] rounded cursor-grab active:cursor-grabbing outline-none focus-visible:ring-1 focus-visible:ring-[#AAC06A]"
+        className="hidden md:flex absolute left-1.5 top-3 opacity-0 group-hover/exp:opacity-100 focus-within:opacity-100 transition-opacity items-center justify-center p-1 text-[#6E6A62] hover:text-[#1F1F1B] rounded cursor-grab active:cursor-grabbing outline-none focus-visible:ring-1 focus-visible:ring-[#AAC06A]"
         {...attributes}
         {...listeners}
         aria-label={experience.company ? `Reorder ${experience.company}` : "Reorder experience"}
@@ -95,29 +95,29 @@ export const SortableExperience: React.FC<SortableExperienceProps> = ({
         <GripVertical className="w-4 h-4" />
       </button>
 
-      <div className="flex justify-between items-baseline gap-2">
+      <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-baseline gap-1 sm:gap-2">
         <input
           type="text"
           value={experience.company}
           onChange={(e) => onUpdate(sectionId, experience.id, 'company', e.target.value)}
           placeholder="Company Name"
-          className="font-semibold text-[#1F1F1B] text-sm bg-transparent border-0 outline-none p-0.5 -ml-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 flex-1 min-w-0"
+          className="font-semibold text-[#1F1F1B] text-[16px] md:text-sm bg-transparent border-0 outline-none p-0.5 -ml-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 flex-1 min-w-0 w-full sm:w-auto"
         />
-        <div className="flex items-center gap-1 shrink-0 ml-2 relative" style={{ fontVariantNumeric: 'tabular-nums' }}>
+        <div className="flex items-center gap-1 shrink-0 sm:ml-2 relative mt-1 sm:mt-0 w-full sm:w-auto" style={{ fontVariantNumeric: 'tabular-nums' }}>
           <input
             type="text"
             value={experience.startDate}
             onChange={(e) => onUpdate(sectionId, experience.id, 'startDate', e.target.value)}
             placeholder="Start"
-            className="text-xs text-[#6E6A62] font-medium bg-transparent border-0 outline-none p-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 text-right w-16"
+            className="text-[16px] md:text-xs text-[#6E6A62] font-medium bg-transparent border-0 outline-none p-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 text-right w-16 md:w-16 flex-1 sm:flex-none"
           />
-          <span className="text-xs text-[#6E6A62] font-medium">–</span>
+          <span className="text-[16px] md:text-xs text-[#6E6A62] font-medium">–</span>
           <input
             type="text"
             value={experience.endDate}
             onChange={(e) => onUpdate(sectionId, experience.id, 'endDate', e.target.value)}
             placeholder="End"
-            className="text-xs text-[#6E6A62] font-medium bg-transparent border-0 outline-none p-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 text-right w-16"
+            className="text-[16px] md:text-xs text-[#6E6A62] font-medium bg-transparent border-0 outline-none p-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 text-right w-16 md:w-16 flex-1 sm:flex-none"
           />
           
           {/* More Menu */}
@@ -125,7 +125,7 @@ export const SortableExperience: React.FC<SortableExperienceProps> = ({
             <button
               type="button"
               onClick={handleMenuClick}
-              className="opacity-0 group-hover/exp:opacity-100 focus-within:opacity-100 p-1 text-[#6E6A62] hover:text-[#1F1F1B] rounded transition-opacity cursor-pointer outline-none focus-visible:ring-1 focus-visible:ring-[#AAC06A]"
+              className="opacity-100 md:opacity-0 md:group-hover/exp:opacity-100 md:focus-within:opacity-100 p-1 text-[#6E6A62] hover:text-[#1F1F1B] rounded transition-opacity cursor-pointer outline-none focus-visible:ring-1 focus-visible:ring-[#AAC06A]"
               aria-label="Experience options"
               aria-expanded={menuOpen}
             >
@@ -170,7 +170,7 @@ export const SortableExperience: React.FC<SortableExperienceProps> = ({
         value={experience.role}
         onChange={(e) => onUpdate(sectionId, experience.id, 'role', e.target.value)}
         placeholder="Job Title / Role"
-        className="text-xs font-medium text-[#6E6A62] bg-transparent border-0 outline-none p-0.5 -ml-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 w-full mb-1"
+        className="text-[16px] md:text-xs font-medium text-[#6E6A62] bg-transparent border-0 outline-none p-0.5 -ml-0.5 rounded transition-colors hover:bg-black/[0.02] focus:ring-1 focus:ring-[#AAC06A]/60 w-full mb-1"
       />
       
       {/* Bullet points Context */}
