@@ -1,4 +1,4 @@
-import { Resume, Bullet, ContactInfo, Education, Experience, Project, ResumeSection, TemplateType } from '../types';
+import { Resume, Bullet, ContactInfo, Education, Experience, Project, ResumeSection, TemplateType, LibraryExperience } from '../types';
 
 const VALID_TEMPLATES: TemplateType[] = ['Classic', 'Modern', 'Compact'];
 const REQUIRED_RESUME_KEYS = ['pm-resume', 'growth-resume', 'consulting-resume'];
@@ -14,6 +14,40 @@ function isString(val: unknown): val is string {
 function isBullet(val: unknown): val is Bullet {
   if (!isObject(val)) return false;
   return isString(val.id) && val.id.trim() !== '' && isString(val.text);
+}
+
+export function isLibraryExperience(val: unknown): val is LibraryExperience {
+  if (!isObject(val)) return false;
+  if (
+    !isString(val.id) ||
+    val.id.trim() === '' ||
+    !isString(val.company) ||
+    !isString(val.role) ||
+    !isString(val.startDate) ||
+    !isString(val.endDate) ||
+    !Array.isArray(val.bullets)
+  ) {
+    return false;
+  }
+  
+  if (!val.bullets.every(isBullet)) {
+    return false;
+  }
+  
+  const bulletIds = new Set((val.bullets as Bullet[]).map(b => b.id));
+  if (bulletIds.size !== val.bullets.length) {
+    return false;
+  }
+  
+  return true;
+}
+
+export function isValidLibraryArray(val: unknown): val is LibraryExperience[] {
+  if (!Array.isArray(val)) return false;
+  if (!val.every(isLibraryExperience)) return false;
+  
+  const expIds = new Set((val as LibraryExperience[]).map(e => e.id));
+  return expIds.size === val.length;
 }
 
 function isContactInfo(val: unknown): val is ContactInfo {

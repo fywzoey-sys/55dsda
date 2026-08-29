@@ -8,16 +8,17 @@ import { Sidebar } from './components/Sidebar';
 import { Toolbar, SaveStatus } from './components/Toolbar';
 import { ResumePaper } from './components/ResumePaper';
 import { RightPanel } from './components/RightPanel';
-import { mockResumes } from './data/mockData';
-import { Resume, RightTabType } from './types';
-import { isValidResumeRecord, isValidResumeArray, isResume } from './utils/validation';
+import { mockResumes, libraryItems } from './data/mockData';
+import { generateId } from './utils/id';
+import { Resume, RightTabType, LibraryExperience, Bullet, ExperienceSection, Experience } from './types';
+import { isValidResumeRecord, isValidResumeArray, isResume, isValidLibraryArray } from './utils/validation';
 import { Menu, X, Briefcase, BookOpen } from 'lucide-react';
 
 const STORAGE_KEY_V2 = 'resume-space:data:v2';
 const STORAGE_KEY_V1 = 'resume-space:resumes:v1';
 const AUTOSAVE_DEBOUNCE_MS = 600;
 
-function loadStorage(): { resumes: Resume[]; activeResumeId: string } {
+function loadStorage(): { resumes: Resume[]; activeResumeId: string; library: LibraryExperience[] } {
   try {
     const storedV2 = localStorage.getItem(STORAGE_KEY_V2);
     if (storedV2) {
@@ -32,7 +33,11 @@ function loadStorage(): { resumes: Resume[]; activeResumeId: string } {
               validActiveId = parsed.resumes[0].id;
               // we don't write here, but when the App renders, latestDataRef will eventually persist it
             }
-            return { resumes: parsed.resumes, activeResumeId: validActiveId };
+            let validLibrary = parsed.library;
+            if (!isValidLibraryArray(validLibrary)) {
+              validLibrary = JSON.parse(JSON.stringify(libraryItems));
+            }
+            return { resumes: parsed.resumes, activeResumeId: validActiveId, library: validLibrary };
           }
         }
       }
@@ -58,11 +63,11 @@ function loadStorage(): { resumes: Resume[]; activeResumeId: string } {
       if (v1Resumes && v1ActiveId) {
         // Migrate to V2
         try {
-          localStorage.setItem(STORAGE_KEY_V2, JSON.stringify({ resumes: v1Resumes, activeResumeId: v1ActiveId }));
+          localStorage.setItem(STORAGE_KEY_V2, JSON.stringify({ resumes: v1Resumes, activeResumeId: v1ActiveId, library: JSON.parse(JSON.stringify(libraryItems)) }));
         } catch (e) {
           console.warn('Failed to migrate V1 to V2:', e);
         }
-        return { resumes: v1Resumes, activeResumeId: v1ActiveId };
+        return { resumes: v1Resumes, activeResumeId: v1ActiveId, library: JSON.parse(JSON.stringify(libraryItems)) };
       }
     }
   } catch (err) {
@@ -74,7 +79,8 @@ function loadStorage(): { resumes: Resume[]; activeResumeId: string } {
   const fallbackResumes = JSON.parse(JSON.stringify(mockArr));
   return {
     resumes: fallbackResumes,
-    activeResumeId: fallbackResumes[0].id
+    activeResumeId: fallbackResumes[0].id,
+    library: JSON.parse(JSON.stringify(libraryItems))
   };
 }
 
@@ -82,6 +88,7 @@ export default function App() {
   const initialData = useRef(loadStorage());
   const [resumes, setResumes] = useState<Resume[]>(initialData.current.resumes);
   const [currentResumeId, setCurrentResumeId] = useState<string>(initialData.current.activeResumeId);
+  const [library, setLibrary] = useState<LibraryExperience[]>(initialData.current.library);
   const [rightTab, setRightTab] = useState<RightTabType>('Job Description');
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const [mobileRightOpen, setMobileRightOpen] = useState<boolean>(false);
@@ -89,11 +96,11 @@ export default function App() {
 
   const isInitialMount = useRef<boolean>(true);
   const debounceTimerRef = useRef<number | null>(null);
-  const latestDataRef = useRef({ resumes, activeResumeId: currentResumeId });
+  const latestDataRef = useRef({ resumes, activeResumeId: currentResumeId, library });
 
   useEffect(() => {
-    latestDataRef.current = { resumes, activeResumeId: currentResumeId };
-  }, [resumes, currentResumeId]);
+    latestDataRef.current = { resumes, activeResumeId: currentResumeId, library };
+  }, [resumes, currentResumeId, library]);
 
   // Synchronous flush helper for page unload/visibility change
   const flushSave = useCallback(() => {
@@ -149,7 +156,7 @@ export default function App() {
 
     debounceTimerRef.current = window.setTimeout(() => {
       try {
-        localStorage.setItem(STORAGE_KEY_V2, JSON.stringify({ resumes, activeResumeId: currentResumeId }));
+        localStorage.setItem(STORAGE_KEY_V2, JSON.stringify({ resumes, activeResumeId: currentResumeId, library }));
         setSaveStatus('saved');
       } catch (err) {
         console.error('Failed to save to LocalStorage:', err);
@@ -180,6 +187,129 @@ export default function App() {
   const resumesList = resumes.map(r => ({ id: r.id, name: r.name || 'Untitled Resume' }));
 
   const currentResume = resumes.find(r => r.id === currentResumeId) || resumes[0];
+
+  
+  const handleAddExperienceFromLibrary = useCallback((libExp: LibraryExperience) => {
+    setResumes(prev => {
+      const activeIdx = prev.findIndex(r => r.id === currentResumeId);
+      if (activeIdx === -1) return prev;
+      
+      const next = [...prev];
+      const activeResume = { ...next[activeIdx] };
+      const nextSections = [...activeResume.sections];
+      
+      let expSectionIdx = nextSections.findIndex(s => s.type === 'experience');
+      
+      const newExp: Experience = {
+        id: generateId('exp'),
+        company: libExp.company,
+        role: libExp.role,
+        startDate: libExp.startDate,
+        endDate: libExp.endDate,
+        bullets: libExp.bullets.map(b => ({
+          id: generateId('bullet'),
+          text: b.text
+        }))
+      };
+      
+      if (expSectionIdx === -1) {
+        // Create section
+        const newSection: ExperienceSection = {
+          id: generateId('sec-exp'),
+          type: 'experience',
+          title: 'Experience',
+          items: [newExp]
+        };
+        nextSections.push(newSection);
+      } else {
+        const expSection = { ...nextSections[expSectionIdx] } as ExperienceSection;
+        expSection.items = [...expSection.items, newExp];
+        nextSections[expSectionIdx] = expSection;
+      }
+      
+      activeResume.sections = nextSections;
+      activeResume.updatedAt = new Date().toISOString();
+      next[activeIdx] = activeResume;
+      return next;
+    });
+  }, [currentResumeId]);
+
+  const handleAddBulletFromLibrary = useCallback((libBullet: Bullet, targetExpId: string) => {
+    setResumes(prev => {
+      const activeIdx = prev.findIndex(r => r.id === currentResumeId);
+      if (activeIdx === -1) return prev;
+      
+      const next = [...prev];
+      const activeResume = { ...next[activeIdx] };
+      const nextSections = activeResume.sections.map(section => {
+        if (section.type !== 'experience') return section;
+        const expSection = section as ExperienceSection;
+        return {
+          ...expSection,
+          items: expSection.items.map(exp => {
+            if (exp.id === targetExpId) {
+              return {
+                ...exp,
+                bullets: [
+                  ...exp.bullets,
+                  {
+                    id: generateId('bullet'),
+                    text: libBullet.text
+                  }
+                ]
+              };
+            }
+            return exp;
+          })
+        };
+      });
+      
+      activeResume.sections = nextSections;
+      activeResume.updatedAt = new Date().toISOString();
+      next[activeIdx] = activeResume;
+      return next;
+    });
+  }, [currentResumeId]);
+
+  const handleSaveExperienceToLibrary = useCallback((exp: Experience) => {
+    setLibrary(prev => {
+      const newLibExp: LibraryExperience = {
+        id: generateId('lib-exp'),
+        company: exp.company,
+        role: exp.role,
+        startDate: exp.startDate,
+        endDate: exp.endDate,
+        bullets: exp.bullets.map(b => ({
+          id: generateId('lib-bullet'),
+          text: b.text
+        }))
+      };
+      return [...prev, newLibExp];
+    });
+  }, []);
+
+  const handleSaveBulletToLibrary = useCallback((exp: Experience, bullet: Bullet) => {
+    setLibrary(prev => {
+      const newLibExp: LibraryExperience = {
+        id: generateId('lib-exp'),
+        company: exp.company,
+        role: exp.role,
+        startDate: exp.startDate,
+        endDate: exp.endDate,
+        bullets: [
+          {
+            id: generateId('lib-bullet'),
+            text: bullet.text
+          }
+        ]
+      };
+      return [...prev, newLibExp];
+    });
+  }, []);
+
+  const handleDeleteLibraryItem = useCallback((id: string) => {
+    setLibrary(prev => prev.filter(item => item.id !== id));
+  }, []);
 
   const handleUpdateResume = useCallback((updatedResume: Resume) => {
     setResumes((prev) => prev.map(r => r.id === updatedResume.id ? { ...updatedResume, updatedAt: new Date().toISOString() } : r));
@@ -316,6 +446,8 @@ export default function App() {
             <ResumePaper
               resume={currentResume}
               onUpdateResume={handleUpdateResume}
+              onSaveExperienceToLibrary={handleSaveExperienceToLibrary}
+              onSaveBulletToLibrary={handleSaveBulletToLibrary}
             />
           </div>
         </main>
@@ -340,6 +472,10 @@ export default function App() {
             onTabChange={(tab) => setRightTab(tab)}
             resume={currentResume}
             onClose={() => setMobileRightOpen(false)}
+            library={library}
+            onAddExperienceFromLibrary={handleAddExperienceFromLibrary}
+            onAddBulletFromLibrary={handleAddBulletFromLibrary}
+            onDeleteLibraryItem={handleDeleteLibraryItem}
           />
         </div>
       </div>

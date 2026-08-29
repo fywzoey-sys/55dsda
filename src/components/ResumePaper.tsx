@@ -1,5 +1,5 @@
 import React from 'react';
-import { Resume, ContactInfo, Education, Experience, Project, EducationSection, ExperienceSection, ProjectSection } from '../types';
+import { Resume, ContactInfo, Education, Experience, Project, EducationSection, ExperienceSection, ProjectSection, Bullet } from '../types';
 import { generateId } from '../utils/id';
 // import { AutoResizeTextarea } from './AutoResizeTextarea';
 import { Plus } from 'lucide-react';
@@ -25,9 +25,11 @@ import { SortableBullet } from './resume/SortableBullet';
 interface ResumePaperProps {
   resume: Resume;
   onUpdateResume: (updatedResume: Resume) => void;
+  onSaveExperienceToLibrary?: (exp: Experience) => void;
+  onSaveBulletToLibrary?: (exp: Experience, bullet: Bullet) => void;
 }
 
-export const ResumePaper: React.FC<ResumePaperProps> = ({ resume, onUpdateResume }) => {
+export const ResumePaper: React.FC<ResumePaperProps> = ({ resume, onUpdateResume, onSaveExperienceToLibrary = () => {}, onSaveBulletToLibrary = () => {} }) => {
   // Update top-level header fields
   const handleUpdateHeader = (field: 'fullName' | 'title', value: string) => {
     onUpdateResume({
@@ -592,6 +594,8 @@ const handleAddBullet = (sectionId: string, parentId: string) => {
                             onAddBullet={handleAddBullet}
                             onMoveBulletUp={(sId, pId, idx) => handleMoveBullet(sId, pId, idx, 'up')}
                             onMoveBulletDown={(sId, pId, idx) => handleMoveBullet(sId, pId, idx, 'down')}
+                            onSaveExperienceToLibrary={onSaveExperienceToLibrary}
+                            onSaveBulletToLibrary={onSaveBulletToLibrary}
                           />
                         ))}
                       </SortableContext>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { GripVertical, MoreHorizontal, ArrowUp, ArrowDown, Trash2 } from 'lucide-react';
+import { GripVertical, MoreHorizontal, ArrowUp, ArrowDown, Trash2, BookOpen } from 'lucide-react';
 import { Bullet } from '../../types';
 import { AutoResizeTextarea } from '../AutoResizeTextarea';
 
@@ -15,6 +15,7 @@ interface SortableBulletProps {
   onDelete: (sectionId: string, parentId: string, bulletId: string) => void;
   onMoveUp: (sectionId: string, parentId: string, index: number) => void;
   onMoveDown: (sectionId: string, parentId: string, index: number) => void;
+  onSaveToLibrary?: () => void;
 }
 
 export const SortableBullet: React.FC<SortableBulletProps> = ({
@@ -27,6 +28,7 @@ export const SortableBullet: React.FC<SortableBulletProps> = ({
   onDelete,
   onMoveUp,
   onMoveDown,
+  onSaveToLibrary,
 }) => {
   const {
     attributes,
@@ -126,6 +128,17 @@ export const SortableBullet: React.FC<SortableBulletProps> = ({
                 <ArrowDown className="w-3.5 h-3.5" /> Move down
               </button>
               <div className="h-px bg-[#E2DACF]/60 my-1" />
+              <button
+                type="button"
+                onClick={() => {
+                  onSaveToLibrary?.();
+                  setMenuOpen(false);
+                }}
+                className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-[#1F1F1B] hover:bg-[#F6F1E7] transition-colors"
+              >
+                <BookOpen className="w-3.5 h-3.5" />
+                Save to Library
+              </button>
               <button
                 type="button"
                 onClick={() => { onDelete(sectionId, parentId, bullet.id); setMenuOpen(false); }}

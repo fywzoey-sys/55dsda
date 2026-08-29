@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { GripVertical, MoreHorizontal, ArrowUp, ArrowDown, Trash2, Plus } from 'lucide-react';
-import { Experience } from '../../types';
+import { GripVertical, MoreHorizontal, ArrowUp, ArrowDown, Trash2, Plus, BookOpen } from 'lucide-react';
+import { Experience, Bullet } from '../../types';
 import { SortableBullet } from './SortableBullet';
 
 interface SortableExperienceProps {
@@ -20,6 +20,8 @@ interface SortableExperienceProps {
   onAddBullet: (sectionId: string, parentId: string) => void;
   onMoveBulletUp: (sectionId: string, parentId: string, index: number) => void;
   onMoveBulletDown: (sectionId: string, parentId: string, index: number) => void;
+  onSaveExperienceToLibrary?: (exp: Experience) => void;
+  onSaveBulletToLibrary?: (exp: Experience, bullet: Bullet) => void;
 }
 
 export const SortableExperience: React.FC<SortableExperienceProps> = ({
@@ -36,6 +38,8 @@ export const SortableExperience: React.FC<SortableExperienceProps> = ({
   onAddBullet,
   onMoveBulletUp,
   onMoveBulletDown,
+  onSaveExperienceToLibrary,
+  onSaveBulletToLibrary,
 }) => {
   const {
     attributes,
@@ -154,6 +158,17 @@ export const SortableExperience: React.FC<SortableExperienceProps> = ({
                   <div className="h-px bg-[#E2DACF]/60 my-1" />
                   <button
                     type="button"
+                    onClick={() => {
+                      onSaveExperienceToLibrary?.(experience);
+                      setMenuOpen(false);
+                    }}
+                    className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-[#1F1F1B] hover:bg-[#F6F1E7] transition-colors"
+                  >
+                    <BookOpen className="w-3.5 h-3.5" />
+                    Save to Library
+                  </button>
+                  <button
+                    type="button"
                     onClick={() => { onDelete(sectionId, experience.id); setMenuOpen(false); }}
                     className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-red-600 hover:bg-red-50"
                   >
@@ -188,6 +203,7 @@ export const SortableExperience: React.FC<SortableExperienceProps> = ({
               onDelete={onDeleteBullet}
               onMoveUp={onMoveBulletUp}
               onMoveDown={onMoveBulletDown}
+              onSaveToLibrary={() => onSaveBulletToLibrary?.(experience, bullet)}
             />
           ))}
         </SortableContext>
