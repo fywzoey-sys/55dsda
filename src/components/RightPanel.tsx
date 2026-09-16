@@ -1,6 +1,6 @@
 import { RightTabType, Resume, LibraryExperience, Bullet, ExperienceSection } from '../types';
-import { Briefcase, BookOpen, Plus, X, MoreHorizontal, Trash2 } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { Briefcase, BookOpen, Plus, X, MoreHorizontal, Trash2, Check } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
 
 interface RightPanelProps {
   onClose?: () => void;
@@ -31,6 +31,16 @@ export const RightPanel: React.FC<RightPanelProps> = ({
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [addedIds, setAddedIds] = useState<Record<string, boolean>>({});
+  const [addedBulletIds, setAddedBulletIds] = useState<Record<string, boolean>>({});
+  const expTimeoutsRef = useRef<Record<string, number>>({});
+  const bulletTimeoutsRef = useRef<Record<string, number>>({});
+  
+  useEffect(() => {
+    return () => {
+      Object.values(expTimeoutsRef.current).forEach(window.clearTimeout);
+      Object.values(bulletTimeoutsRef.current).forEach(window.clearTimeout);
+    };
+  }, []);
 
   useEffect(() => {
     if (allExperiences.length > 0) {
@@ -65,14 +75,49 @@ export const RightPanel: React.FC<RightPanelProps> = ({
   const handleAddExperience = (item: LibraryExperience) => {
     onAddExperienceFromLibrary(item);
     setAddedIds(prev => ({ ...prev, [item.id]: true }));
-    setTimeout(() => {
-      setAddedIds(prev => ({ ...prev, [item.id]: false }));
+    if (expTimeoutsRef.current[item.id]) {
+      window.clearTimeout(expTimeoutsRef.current[item.id]);
+    }
+    expTimeoutsRef.current[item.id] = window.setTimeout(() => {
+      setAddedIds(prev => {
+        const next = { ...prev };
+        delete next[item.id];
+        return next;
+      });
     }, 1500);
   };
 
   const handleAddBullet = (bullet: Bullet) => {
     if (!targetExpId) return;
     onAddBulletFromLibrary(bullet, targetExpId);
+    setAddedBulletIds(prev => ({ ...prev, [bullet.id]: true }));
+    if (bulletTimeoutsRef.current[bullet.id]) {
+      window.clearTimeout(bulletTimeoutsRef.current[bullet.id]);
+    }
+    bulletTimeoutsRef.current[bullet.id] = window.setTimeout(() => {
+      setAddedBulletIds(prev => {
+        const next = { ...prev };
+        delete next[bullet.id];
+        return next;
+      });
+    }, 1500);
+  };
+  
+  const handleDeleteItem = (id: string) => {
+    const item = library.find(i => i.id === id);
+    onDeleteLibraryItem(id);
+    if (expTimeoutsRef.current[id]) {
+      window.clearTimeout(expTimeoutsRef.current[id]);
+      delete expTimeoutsRef.current[id];
+    }
+    if (item) {
+      item.bullets.forEach(b => {
+        if (bulletTimeoutsRef.current[b.id]) {
+          window.clearTimeout(bulletTimeoutsRef.current[b.id]);
+          delete bulletTimeoutsRef.current[b.id];
+        }
+      });
+    }
   };
 
   return (
@@ -96,9 +141,12 @@ export const RightPanel: React.FC<RightPanelProps> = ({
         </div>
 
         {/* Top Tabs */}
-        <div className="flex bg-white/30 p-1 rounded-2xl mb-4 shrink-0">
+        <div className="flex bg-white/30 p-1 rounded-2xl mb-4 shrink-0" role="tablist" aria-label="Context panel">
           <button
             type="button"
+            role="tab"
+            id="jd-tab"
+            aria-controls="jd-panel"
             onClick={() => onTabChange('Job Description')}
             aria-selected={activeTab === 'Job Description'}
             className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1F1F1B]/20 cursor-pointer ${
@@ -112,6 +160,9 @@ export const RightPanel: React.FC<RightPanelProps> = ({
           </button>
           <button
             type="button"
+            role="tab"
+            id="library-tab"
+            aria-controls="library-panel"
             onClick={() => onTabChange('Library')}
             aria-selected={activeTab === 'Library'}
             className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1F1F1B]/20 cursor-pointer ${
@@ -128,7 +179,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({
         {/* Tab Content */}
         <div className="flex-1 overflow-y-auto pr-2 space-y-4 right-panel-content">
           {activeTab === 'Job Description' ? (
-            <div className="space-y-3">
+            <div className="space-y-3" role="tabpanel" id="jd-panel" aria-labelledby="jd-tab">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-semibold uppercase tracking-wider text-[#6E6A62]">
                   Target JD
@@ -148,7 +199,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({
               </p>
             </div>
           ) : (
-            <div className="space-y-6">
+            <div className="space-y-6" role="tabpanel" id="library-panel" aria-labelledby="library-tab">
               <div className="flex flex-col gap-2">
                 <div className="flex items-center justify-between">
                   <span className="text-[11px] font-semibold uppercase tracking-wider text-[#6E6A62]">
@@ -213,7 +264,8 @@ export const RightPanel: React.FC<RightPanelProps> = ({
                               type="button"
                               onClick={() => handleAddExperience(item)}
                               className="w-7 h-7 rounded-md flex items-center justify-center transition-colors hover:bg-black/5 text-[#1F1F1B]"
-                              aria-label={`Add ${item.company} experience to current resume`}
+                              aria-label="Add entire experience to current resume"
+                              title="Add entire experience"
                             >
                               <Plus className="w-4 h-4" />
                             </button>
@@ -256,15 +308,22 @@ export const RightPanel: React.FC<RightPanelProps> = ({
                             className="group flex items-start justify-between gap-2 py-1.5 px-2 -mx-2 rounded-lg hover:bg-white/40 transition-colors duration-100 text-xs text-[#1F1F1B]"
                           >
                             <p className="leading-relaxed flex-1 mt-0.5">{bullet.text}</p>
-                            <button
-                              type="button"
-                              disabled={!targetExpId}
-                              onClick={() => handleAddBullet(bullet)}
-                              className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 transition-all duration-150 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 bg-[#AAC06A]/20 hover:bg-[#AAC06A]/40 text-[#1F1F1B] disabled:opacity-30 disabled:cursor-not-allowed focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1F1F1B]/20"
-                              aria-label="Add bullet to selected experience"
-                            >
-                              <Plus className="w-3.5 h-3.5" />
-                            </button>
+                            {addedBulletIds[bullet.id] ? (
+                              <span className="w-6 h-6 flex items-center justify-center text-[#AAC06A]">
+                                <Check className="w-3.5 h-3.5" />
+                              </span>
+                            ) : (
+                              <button
+                                type="button"
+                                disabled={!targetExpId}
+                                onClick={() => handleAddBullet(bullet)}
+                                className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 transition-all duration-150 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 bg-[#AAC06A]/20 hover:bg-[#AAC06A]/40 text-[#1F1F1B] disabled:opacity-30 disabled:cursor-not-allowed focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1F1F1B]/20"
+                                aria-label="Add bullet to selected experience"
+                                title="Add bullet"
+                              >
+                                <Plus className="w-3.5 h-3.5" />
+                              </button>
+                            )}
                           </div>
                         ))}
                       </div>
@@ -303,7 +362,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({
               <button
                 type="button"
                 onClick={() => {
-                  onDeleteLibraryItem(deleteConfirmId);
+                  handleDeleteItem(deleteConfirmId);
                   setDeleteConfirmId(null);
                 }}
                 className="px-4 py-2 rounded-lg text-xs font-medium text-white bg-red-600 hover:bg-red-700 transition-colors"

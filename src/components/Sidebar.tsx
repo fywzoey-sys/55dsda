@@ -113,8 +113,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <button
                 type="button"
                 onClick={onCreateResume}
-                className="p-1 hover:bg-black/5 rounded-md text-[#6E6A62] transition-colors"
-                title="Create New Resume"
+                className="w-8 h-8 flex items-center justify-center hover:bg-black/5 rounded-md text-[#6E6A62] transition-colors"
+                title="Create new resume"
+                aria-label="Create new resume"
               >
                 <Plus className="w-3.5 h-3.5" />
               </button>
@@ -170,7 +171,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                             e.stopPropagation();
                             setMenuOpenId(isMenuOpen ? null : resume.id);
                           }}
-                          className={`p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/5 ${isMenuOpen || isSelected ? 'opacity-100' : ''}`}
+                          className={`p-1 rounded transition-opacity hover:bg-black/5 shrink-0 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 ${isMenuOpen || isSelected ? 'lg:opacity-100' : ''}`}
                           aria-label={`More options for ${resume.name}`}
                         >
                           <MoreHorizontal className="w-3.5 h-3.5 text-[#6E6A62]" />
@@ -211,18 +212,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
               })}
             </div>
           </div>
-        </div>
-
-        {/* New Resume Button */}
-        <div className="pt-2 border-t border-[#AAC06A]/30">
-          <button
-            type="button"
-            onClick={onCreateResume}
-            className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-xs font-medium text-[#1F1F1B] bg-white/40 hover:bg-white/60 transition-colors shadow-sm"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span>New Resume</span>
-          </button>
         </div>
       </aside>
 

@@ -7,7 +7,7 @@ export const mockResumes: Record<string, Resume> = {
     template: 'Classic',
     jd: '我们希望候选人能够协助产品经理完成用户研究、需求整理、产品测试和跨团队沟通。具备良好的逻辑分析、文字表达和团队协作能力，对互联网产品和用户体验有兴趣。',
     fullName: '林知夏',
-    title: '产品与增长方向实习生',
+    title: '产品方向实习生',
     contact: {
       email: 'linzhixia@example.com',
       phone: '138 0000 0000',
@@ -77,7 +77,7 @@ export const mockResumes: Record<string, Resume> = {
     template: 'Classic',
     jd: '我们希望候选人能够协助增长团队完成渠道数据整理、用户留存分析和活动运营支持。具备良好的数据敏感度、学习能力和沟通能力，熟悉基本的数据分析工具。',
     fullName: '林知夏',
-    title: '产品与增长方向实习生',
+    title: '增长与运营方向实习生',
     contact: {
       email: 'linzhixia@example.com',
       phone: '138 0000 0000',
@@ -156,7 +156,7 @@ export const mockResumes: Record<string, Resume> = {
     template: 'Classic',
     jd: '我们希望候选人能够协助咨询团队完成行业调研、案头研究、数据整理和报告撰写。具备优秀的逻辑思维、信息检索能力和结构化表达能力，对企业战略与运营有研究热情。',
     fullName: '林知夏',
-    title: '产品与增长方向实习生',
+    title: '商业分析与咨询方向实习生',
     contact: {
       email: 'linzhixia@example.com',
       phone: '138 0000 0000',
