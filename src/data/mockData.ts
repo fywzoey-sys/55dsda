@@ -3,31 +3,16 @@ import { Resume, LibraryExperience } from '../types';
 export const mockResumes: Record<string, Resume> = {
   'pm-resume': {
     id: 'pm-resume',
-    name: 'PM Resume',
+    name: '产品简历',
     template: 'Classic',
-    jd: `TikTok - Product Intern (Global Product Solutions)
-
-About the Role:
-We are looking for a driven Product Intern to join our Global Product Solutions team for Summer 2026. In this role, you will collaborate with cross-functional teams including product managers, software engineers, and data scientists to build next-generation creator tools.
-
-Responsibilities:
-- Support product lifecycle from ideation to launch, writing PRDs and defining success metrics.
-- Analyze user feedback, quantitative behavioral data, and conduct user research interviews.
-- Create performance dashboards and monitor core engagement KPIs.
-- Coordinate with design and engineering leads to unblock development dependencies.
-
-Qualifications:
-- Currently enrolled in a Bachelor's or Master's degree program in Economics, Computer Science, Data Science, or related fields.
-- Strong analytical skills, proficiency in SQL/Python or data visualization tools (Tableau, Looker).
-- Excellent communication and cross-functional collaboration capabilities.
-- Previous internship experience in tech, product management, or consulting is a strong plus.`,
-    fullName: 'Alex Chen',
-    title: 'Product Management Intern',
+    jd: '我们希望候选人能够协助产品经理完成用户研究、需求整理、产品测试和跨团队沟通。具备良好的逻辑分析、文字表达和团队协作能力，对互联网产品和用户体验有兴趣。',
+    fullName: '林知夏',
+    title: '产品与增长方向实习生',
     contact: {
-      email: 'alex.chen@berkeley.edu',
-      phone: '+1 (510) 555-0192',
-      location: 'Berkeley, CA',
-      linkedin: 'linkedin.com/in/alexchen-pm',
+      email: 'linzhixia@example.com',
+      phone: '138 0000 0000',
+      location: '上海',
+      linkedin: 'linkedin.com/in/example',
     },
     createdAt: '2026-08-01T10:00:00Z',
     updatedAt: '2026-08-25T10:00:00Z',
@@ -39,10 +24,10 @@ Qualifications:
         items: [
           {
             id: 'pm-education-1',
-            school: 'University of California, Berkeley',
-            degree: 'B.A. Economics · Data Science Minor',
-            startDate: '2023',
-            endDate: '2027',
+            school: '示例大学',
+            degree: '信息管理与信息系统',
+            startDate: '2022.09',
+            endDate: '2026.06',
           },
         ],
       },
@@ -53,25 +38,14 @@ Qualifications:
         items: [
           {
             id: 'pm-experience-1',
-            company: 'ByteDance',
-            role: 'Product Intern',
-            startDate: 'Jun 2025',
-            endDate: 'Aug 2025',
+            company: '校园创新中心',
+            role: '产品实习生',
+            startDate: '2025.06',
+            endDate: '至今',
             bullets: [
-              { id: 'pm-bullet-1', text: 'Conducted user interviews and summarized onboarding pain points to drive retention improvements.' },
-              { id: 'pm-bullet-2', text: 'Built a weekly product performance dashboard tracking core engagement metrics.' },
-              { id: 'pm-bullet-3', text: 'Partnered with design and engineering to refine feature requirements and streamline sprint delivery.' },
-            ],
-          },
-          {
-            id: 'pm-experience-2',
-            company: 'Campus Startup',
-            role: 'Growth Intern',
-            startDate: 'Jan 2025',
-            endDate: 'May 2025',
-            bullets: [
-              { id: 'pm-bullet-4', text: 'Analyzed acquisition channels and campaign performance to optimize conversion funnels.' },
-              { id: 'pm-bullet-5', text: 'Created competitor research reports and market sizing models for strategic growth planning.' },
+              { id: 'pm-bullet-1', text: '整理用户访谈记录，归纳常见使用问题并同步给产品团队。' },
+              { id: 'pm-bullet-2', text: '协助维护需求文档，跟进设计与开发过程中的需求调整。' },
+              { id: 'pm-bullet-3', text: '参与产品功能测试，记录问题并整理测试反馈。' },
             ],
           },
         ],
@@ -83,10 +57,14 @@ Qualifications:
         items: [
           {
             id: 'pm-project-1',
-            name: 'AI Resume Workspace',
-            role: 'Product Project',
+            name: '实习信息整理工具',
+            role: '产品负责人',
+            startDate: '2025.03',
+            endDate: '2025.06',
             bullets: [
-              { id: 'pm-project-bullet-1', text: 'Designed a block-based workflow for restructuring resumes across internship applications.' },
+              { id: 'pm-project-bullet-1', text: '梳理学生查找和管理实习信息时的常见问题。' },
+              { id: 'pm-project-bullet-2', text: '设计职位收藏、进度记录和信息整理流程。' },
+              { id: 'pm-project-bullet-3', text: '根据使用反馈调整信息层级与交互细节。' },
             ],
           },
         ],
@@ -95,25 +73,16 @@ Qualifications:
   },
   'growth-resume': {
     id: 'growth-resume',
-    name: 'Growth Resume',
+    name: '增长简历',
     template: 'Classic',
-    jd: `Acme Corp - Growth & Analytics Intern
-
-Responsibilities:
-- Optimize user acquisition channels and run A/B testing on landing pages.
-- Build predictive growth models and cohort analysis dashboards.
-- Analyze campaign performance across paid and organic social.
-
-Qualifications:
-- Strong data analysis skills and experience with SQL.
-- Prior experience in growth marketing or analytics.`,
-    fullName: 'Alex Chen',
-    title: 'Growth & Analytics Intern',
+    jd: '我们希望候选人能够协助增长团队完成渠道数据整理、用户留存分析和活动运营支持。具备良好的数据敏感度、学习能力和沟通能力，熟悉基本的数据分析工具。',
+    fullName: '林知夏',
+    title: '产品与增长方向实习生',
     contact: {
-      email: 'alex.chen@berkeley.edu',
-      phone: '+1 (510) 555-0192',
-      location: 'Berkeley, CA',
-      linkedin: 'linkedin.com/in/alexchen-pm',
+      email: 'linzhixia@example.com',
+      phone: '138 0000 0000',
+      location: '上海',
+      linkedin: 'linkedin.com/in/example',
     },
     createdAt: '2026-08-05T12:00:00Z',
     updatedAt: '2026-08-20T14:30:00Z',
@@ -125,10 +94,10 @@ Qualifications:
         items: [
           {
             id: 'growth-education-1',
-            school: 'University of California, Berkeley',
-            degree: 'B.A. Economics · Data Science Minor',
-            startDate: '2023',
-            endDate: '2027',
+            school: '示例大学',
+            degree: '信息管理与信息系统',
+            startDate: '2022.09',
+            endDate: '2026.06',
           },
         ],
       },
@@ -139,25 +108,25 @@ Qualifications:
         items: [
           {
             id: 'growth-experience-1',
-            company: 'Campus Startup',
-            role: 'Growth Intern',
-            startDate: 'Jan 2025',
-            endDate: 'May 2025',
+            company: '学生媒体中心',
+            role: '内容运营',
+            startDate: '2024.09',
+            endDate: '2025.05',
             bullets: [
-              { id: 'growth-bullet-1', text: 'Optimized referral funnel resulting in improved viral user acquisition.' },
-              { id: 'growth-bullet-2', text: 'Analyzed acquisition channels and campaign performance across paid and organic social.' },
-              { id: 'growth-bullet-3', text: 'Created competitor research and cohort retention tracking for quarterly growth planning.' },
+              { id: 'growth-bullet-1', text: '参与校园内容选题规划与日常内容维护。' },
+              { id: 'growth-bullet-2', text: '根据读者反馈整理内容优化建议。' },
+              { id: 'growth-bullet-3', text: '协调编辑与设计成员完成内容发布。' },
             ],
           },
           {
             id: 'growth-experience-2',
-            company: 'ByteDance',
-            role: 'Product Intern',
-            startDate: 'Jun 2025',
-            endDate: 'Aug 2025',
+            company: '校园创新中心',
+            role: '产品实习生',
+            startDate: '2025.06',
+            endDate: '至今',
             bullets: [
-              { id: 'growth-bullet-4', text: 'Built a weekly product performance dashboard tracking retention cohorts.' },
-              { id: 'growth-bullet-5', text: 'Conducted user interviews to identify onboarding drop-off bottlenecks.' },
+              { id: 'growth-bullet-4', text: '整理用户访谈记录，归纳常见使用问题并同步给产品团队。' },
+              { id: 'growth-bullet-5', text: '参与产品功能测试，记录问题并整理测试反馈。' },
             ],
           },
         ],
@@ -169,10 +138,12 @@ Qualifications:
         items: [
           {
             id: 'growth-project-1',
-            name: 'Viral Loop Simulator',
-            role: 'Analytics Project',
+            name: '实习信息整理工具',
+            role: '产品负责人',
+            startDate: '2025.03',
+            endDate: '2025.06',
             bullets: [
-              { id: 'growth-project-bullet-1', text: 'Built a predictive growth model simulating user invite loops and acquisition-to-value ratios.' },
+              { id: 'growth-project-bullet-1', text: '根据使用反馈调整信息层级与交互细节。' },
             ],
           },
         ],
@@ -181,25 +152,16 @@ Qualifications:
   },
   'consulting-resume': {
     id: 'consulting-resume',
-    name: 'Consulting Resume',
+    name: '咨询简历',
     template: 'Classic',
-    jd: `MBB Strategy - Summer Associate
-
-Responsibilities:
-- Perform financial modeling and cost-benefit analysis.
-- Conduct primary and secondary research on market trends.
-- Deliver strategic recommendations and presentations to senior stakeholders.
-
-Qualifications:
-- Outstanding academic record in Economics, Business, or related fields.
-- Strong problem-solving framework and structured communication.`,
-    fullName: 'Alex Chen',
-    title: 'Strategy & Operations Associate',
+    jd: '我们希望候选人能够协助咨询团队完成行业调研、案头研究、数据整理和报告撰写。具备优秀的逻辑思维、信息检索能力和结构化表达能力，对企业战略与运营有研究热情。',
+    fullName: '林知夏',
+    title: '产品与增长方向实习生',
     contact: {
-      email: 'alex.chen@berkeley.edu',
-      phone: '+1 (510) 555-0192',
-      location: 'Berkeley, CA',
-      linkedin: 'linkedin.com/in/alexchen-pm',
+      email: 'linzhixia@example.com',
+      phone: '138 0000 0000',
+      location: '上海',
+      linkedin: 'linkedin.com/in/example',
     },
     createdAt: '2026-08-10T09:15:00Z',
     updatedAt: '2026-08-25T11:00:00Z',
@@ -211,10 +173,10 @@ Qualifications:
         items: [
           {
             id: 'consulting-education-1',
-            school: 'University of California, Berkeley',
-            degree: 'B.A. Economics · Data Science Minor',
-            startDate: '2023',
-            endDate: '2027',
+            school: '示例大学',
+            degree: '信息管理与信息系统',
+            startDate: '2022.09',
+            endDate: '2026.06',
           },
         ],
       },
@@ -225,25 +187,14 @@ Qualifications:
         items: [
           {
             id: 'consulting-experience-1',
-            company: 'Berkeley Business Consulting',
-            role: 'Student Consultant',
-            startDate: 'Sep 2024',
-            endDate: 'Dec 2024',
+            company: '课程项目团队',
+            role: '用户研究',
+            startDate: '2024.03',
+            endDate: '2024.06',
             bullets: [
-              { id: 'consulting-bullet-1', text: 'Delivered market-entry recommendations for a fintech client.' },
-              { id: 'consulting-bullet-2', text: 'Performed financial modeling and cost-benefit analysis for operational restructuring.' },
-              { id: 'consulting-bullet-3', text: 'Presented strategic recommendations to executive stakeholders and senior partners.' },
-            ],
-          },
-          {
-            id: 'consulting-experience-2',
-            company: 'ByteDance',
-            role: 'Product Intern',
-            startDate: 'Jun 2025',
-            endDate: 'Aug 2025',
-            bullets: [
-              { id: 'consulting-bullet-4', text: 'Synthesized cross-functional operational metrics into executive review decks.' },
-              { id: 'consulting-bullet-5', text: 'Partnered with design and engineering to refine requirements and workflows.' },
+              { id: 'consulting-bullet-1', text: '设计调查问卷，了解目标用户的日常使用习惯。' },
+              { id: 'consulting-bullet-2', text: '整理定性和定量数据，输出基础的调研分析报告。' },
+              { id: 'consulting-bullet-3', text: '协助团队总结核心痛点，作为后续方案设计的依据。' },
             ],
           },
         ],
@@ -255,10 +206,13 @@ Qualifications:
         items: [
           {
             id: 'consulting-project-1',
-            name: 'FinTech Market Analysis',
-            role: 'Lead Researcher',
+            name: '实习信息整理工具',
+            role: '产品负责人',
+            startDate: '2025.03',
+            endDate: '2025.06',
             bullets: [
-              { id: 'consulting-project-bullet-1', text: 'Authored a market assessment report on digital banking trends in Southeast Asia.' },
+              { id: 'consulting-project-bullet-1', text: '梳理学生查找和管理实习信息时的常见问题。' },
+              { id: 'consulting-project-bullet-2', text: '根据使用反馈调整信息层级与交互细节。' },
             ],
           },
         ],
@@ -269,42 +223,39 @@ Qualifications:
 
 export const libraryItems: LibraryExperience[] = [
   {
-    id: 'lib-item-bd',
-    company: 'ByteDance',
-    role: 'Product Intern',
-    startDate: 'Jun 2025',
-    endDate: 'Aug 2025',
+    id: 'lib-item-innovate',
+    company: '校园创新中心',
+    role: '产品实习生',
+    startDate: '2025.06',
+    endDate: '至今',
     bullets: [
-      { id: 'lib-bd-1', text: 'Conducted user interviews and summarized onboarding pain points to drive retention improvements.' },
-      { id: 'lib-bd-2', text: 'Built a weekly product performance dashboard tracking core engagement metrics.' },
-      { id: 'lib-bd-3', text: 'Partnered with design and engineering to refine feature requirements and streamline sprint delivery.' },
-      { id: 'lib-bd-4', text: 'Analyzed onboarding experiments and documented retention patterns.' },
-      { id: 'lib-bd-5', text: 'Authored product requirement documents for notification improvements.' },
+      { id: 'lib-innovate-1', text: '整理用户访谈记录，归纳常见使用问题并同步给产品团队。' },
+      { id: 'lib-innovate-2', text: '协助维护需求文档，跟进设计与开发过程中的需求调整。' },
+      { id: 'lib-innovate-3', text: '参与产品功能测试，记录问题并整理测试反馈。' },
     ],
   },
   {
-    id: 'lib-item-cs',
-    company: 'Campus Startup',
-    role: 'Growth Intern',
-    startDate: 'Jan 2025',
-    endDate: 'May 2025',
+    id: 'lib-item-media',
+    company: '学生媒体中心',
+    role: '内容运营',
+    startDate: '2024.09',
+    endDate: '2025.05',
     bullets: [
-      { id: 'lib-cs-1', text: 'Analyzed acquisition channels and campaign performance to optimize conversion funnels.' },
-      { id: 'lib-cs-2', text: 'Created competitor research reports and market sizing models for strategic growth planning.' },
-      { id: 'lib-cs-3', text: 'Managed social acquisition experiments to optimize customer acquisition cost.' },
-      { id: 'lib-cs-4', text: 'Coordinated weekly growth sprints with marketing and engineering leads.' },
+      { id: 'lib-media-1', text: '参与校园内容选题规划与日常内容维护。' },
+      { id: 'lib-media-2', text: '根据读者反馈整理内容优化建议。' },
+      { id: 'lib-media-3', text: '协调编辑与设计成员完成内容发布。' },
     ],
   },
   {
-    id: 'lib-item-bbc',
-    company: 'Berkeley Business Consulting',
-    role: 'Student Consultant',
-    startDate: 'Sep 2024',
-    endDate: 'Dec 2024',
+    id: 'lib-item-research',
+    company: '课程项目团队',
+    role: '用户研究',
+    startDate: '2024.03',
+    endDate: '2024.06',
     bullets: [
-      { id: 'lib-bbc-1', text: 'Delivered market-entry recommendations for a fintech client.' },
-      { id: 'lib-bbc-2', text: 'Performed financial modeling and cost-benefit analysis for operational restructuring.' },
-      { id: 'lib-bbc-3', text: 'Presented strategic recommendations to executive stakeholders and senior partners.' },
+      { id: 'lib-research-1', text: '设计调查问卷，了解目标用户的日常使用习惯。' },
+      { id: 'lib-research-2', text: '整理定性和定量数据，输出基础的调研分析报告。' },
+      { id: 'lib-research-3', text: '协助团队总结核心痛点，作为后续方案设计的依据。' },
     ],
   },
 ];
