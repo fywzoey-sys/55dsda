@@ -124,6 +124,7 @@ export const ResumeImportDialog: React.FC<ResumeImportDialogProps> = ({ onClose,
               setDraft={setDraft} 
               onBack={() => setStep('paste')} 
               onConfirm={handleConfirm}
+              onClose={handleClose}
             />
           )}
         </div>
@@ -131,7 +132,7 @@ export const ResumeImportDialog: React.FC<ResumeImportDialogProps> = ({ onClose,
 
       {showDiscard && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 p-4">
-          <div className="bg-[#FFFEFA] rounded-2xl shadow-xl w-full max-w-sm p-6 border border-[#E2DACF]">
+          <div role="alertdialog" aria-modal="true" className="bg-[#FFFEFA] rounded-2xl shadow-xl w-full max-w-sm p-6 border border-[#E2DACF]">
             <h3 className="text-sm font-semibold text-[#1F1F1B] mb-2">Discard import?</h3>
             <p className="text-xs text-[#6E6A62] mb-6 leading-relaxed">Your pasted text and review changes will be discarded.</p>
             <div className="flex justify-end gap-3">
@@ -221,7 +222,8 @@ const RecognitionReview: React.FC<{
   setDraft: React.Dispatch<React.SetStateAction<ParsedResumeDraft | null>>;
   onBack: () => void;
   onConfirm: () => void;
-}> = ({ draft, setDraft, onBack, onConfirm }) => {
+  onClose: () => void;
+}> = ({ draft, setDraft, onBack, onConfirm, onClose }) => {
   const eduSection = draft.sections.find(s => s.type === 'education');
   const expSection = draft.sections.find(s => s.type === 'experience');
   const projSection = draft.sections.find(s => s.type === 'projects');
@@ -268,6 +270,14 @@ const RecognitionReview: React.FC<{
             </button>
             <h2 id="import-dialog-title" className="text-lg font-semibold text-[#1F1F1B]">Review import</h2>
           </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-black/5 text-[#6E6A62] transition-colors"
+            aria-label="Close"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
         <p className="text-xs font-medium text-[#AAC06A] ml-11">Nothing will be added until you confirm.</p>
       </div>
@@ -299,8 +309,9 @@ const RecognitionReview: React.FC<{
           <h3 className="text-sm font-semibold text-[#1F1F1B]">Basic Info</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="text-[11px] font-medium text-[#6E6A62] block mb-1">Resume Name</label>
+              <label htmlFor="import-name" className="text-[11px] font-medium text-[#6E6A62] block mb-1">Resume Name</label>
               <input 
+                id="import-name"
                 type="text" 
                 value={draft.name} 
                 onChange={e => updateDraft(d => { d.name = e.target.value; })} 
@@ -308,8 +319,9 @@ const RecognitionReview: React.FC<{
               />
             </div>
             <div>
-              <label className="text-[11px] font-medium text-[#6E6A62] block mb-1">Full Name</label>
+              <label htmlFor="import-fullname" className="text-[11px] font-medium text-[#6E6A62] block mb-1">Full Name</label>
               <input 
+                id="import-fullname"
                 type="text" 
                 value={draft.fullName} 
                 onChange={e => updateDraft(d => { d.fullName = e.target.value; })} 
@@ -317,8 +329,9 @@ const RecognitionReview: React.FC<{
               />
             </div>
             <div className="sm:col-span-2">
-              <label className="text-[11px] font-medium text-[#6E6A62] block mb-1">Title</label>
+              <label htmlFor="import-title" className="text-[11px] font-medium text-[#6E6A62] block mb-1">Title</label>
               <input 
+                id="import-title"
                 type="text" 
                 value={draft.title} 
                 onChange={e => updateDraft(d => { d.title = e.target.value; })} 
@@ -326,8 +339,9 @@ const RecognitionReview: React.FC<{
               />
             </div>
             <div>
-              <label className="text-[11px] font-medium text-[#6E6A62] block mb-1">Email</label>
+              <label htmlFor="import-email" className="text-[11px] font-medium text-[#6E6A62] block mb-1">Email</label>
               <input 
+                id="import-email"
                 type="text" 
                 value={draft.contact.email} 
                 onChange={e => handleUpdateContact('email', e.target.value)} 
@@ -335,8 +349,9 @@ const RecognitionReview: React.FC<{
               />
             </div>
             <div>
-              <label className="text-[11px] font-medium text-[#6E6A62] block mb-1">Phone</label>
+              <label htmlFor="import-phone" className="text-[11px] font-medium text-[#6E6A62] block mb-1">Phone</label>
               <input 
+                id="import-phone"
                 type="text" 
                 value={draft.contact.phone} 
                 onChange={e => handleUpdateContact('phone', e.target.value)} 
@@ -344,8 +359,9 @@ const RecognitionReview: React.FC<{
               />
             </div>
             <div>
-              <label className="text-[11px] font-medium text-[#6E6A62] block mb-1">Location</label>
+              <label htmlFor="import-location" className="text-[11px] font-medium text-[#6E6A62] block mb-1">Location</label>
               <input 
+                id="import-location"
                 type="text" 
                 value={draft.contact.location} 
                 onChange={e => handleUpdateContact('location', e.target.value)} 
@@ -353,8 +369,9 @@ const RecognitionReview: React.FC<{
               />
             </div>
             <div>
-              <label className="text-[11px] font-medium text-[#6E6A62] block mb-1">LinkedIn</label>
+              <label htmlFor="import-linkedin" className="text-[11px] font-medium text-[#6E6A62] block mb-1">LinkedIn</label>
               <input 
+                id="import-linkedin"
                 type="text" 
                 value={draft.contact.linkedin} 
                 onChange={e => handleUpdateContact('linkedin', e.target.value)} 
@@ -391,22 +408,23 @@ const RecognitionReview: React.FC<{
                   const s = d.sections.find(sec => sec.type === 'education') as any;
                   if (s) s.items = s.items.filter((i: any) => i.id !== item.id);
                 })}
+                aria-label="Delete"
                 className="absolute top-2 right-2 p-1.5 text-red-600/60 hover:text-red-600 hover:bg-red-50 rounded-lg lg:opacity-0 group-hover:opacity-100 transition-opacity"
               >
                 <Trash2 className="w-4 h-4" />
               </button>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pr-8">
                 <div>
-                  <label className="text-[10px] text-[#6E6A62] block mb-1">School</label>
-                  <input type="text" value={item.school} onChange={e => updateDraft(d => {
+                  <label htmlFor={`edu-school-${item.id}`} className="text-[10px] text-[#6E6A62] block mb-1">School</label>
+                  <input id={`edu-school-${item.id}`} type="text" value={item.school} onChange={e => updateDraft(d => {
                     const s = d.sections.find(sec => sec.type === 'education') as any;
                     const i = s.items.find((x: any) => x.id === item.id);
                     if (i) i.school = e.target.value;
                   })} className="w-full border border-[#E2DACF] rounded-lg px-2 py-1.5 text-xs focus:ring-1 focus:ring-[#AAC06A]/60 outline-none" />
                 </div>
                 <div>
-                  <label className="text-[10px] text-[#6E6A62] block mb-1">Degree</label>
-                  <input type="text" value={item.degree} onChange={e => updateDraft(d => {
+                  <label htmlFor={`edu-degree-${item.id}`} className="text-[10px] text-[#6E6A62] block mb-1">Degree</label>
+                  <input id={`edu-degree-${item.id}`} type="text" value={item.degree} onChange={e => updateDraft(d => {
                     const s = d.sections.find(sec => sec.type === 'education') as any;
                     const i = s.items.find((x: any) => x.id === item.id);
                     if (i) i.degree = e.target.value;
@@ -414,16 +432,16 @@ const RecognitionReview: React.FC<{
                 </div>
                 <div className="flex gap-2 sm:col-span-2">
                   <div className="flex-1">
-                    <label className="text-[10px] text-[#6E6A62] block mb-1">Start Date</label>
-                    <input type="text" value={item.startDate} onChange={e => updateDraft(d => {
+                    <label htmlFor={`start-${item.id}`} className="text-[10px] text-[#6E6A62] block mb-1">Start Date</label>
+                    <input id={`start-${item.id}`} type="text" value={item.startDate} onChange={e => updateDraft(d => {
                       const s = d.sections.find(sec => sec.type === 'education') as any;
                       const i = s.items.find((x: any) => x.id === item.id);
                       if (i) i.startDate = e.target.value;
                     })} className="w-full border border-[#E2DACF] rounded-lg px-2 py-1.5 text-xs focus:ring-1 focus:ring-[#AAC06A]/60 outline-none" />
                   </div>
                   <div className="flex-1">
-                    <label className="text-[10px] text-[#6E6A62] block mb-1">End Date</label>
-                    <input type="text" value={item.endDate} onChange={e => updateDraft(d => {
+                    <label htmlFor={`end-${item.id}`} className="text-[10px] text-[#6E6A62] block mb-1">End Date</label>
+                    <input id={`end-${item.id}`} type="text" value={item.endDate} onChange={e => updateDraft(d => {
                       const s = d.sections.find(sec => sec.type === 'education') as any;
                       const i = s.items.find((x: any) => x.id === item.id);
                       if (i) i.endDate = e.target.value;
@@ -463,22 +481,23 @@ const RecognitionReview: React.FC<{
                   const s = d.sections.find(sec => sec.type === 'experience') as any;
                   if (s) s.items = s.items.filter((i: any) => i.id !== item.id);
                 })}
+                aria-label="Delete"
                 className="absolute top-2 right-2 p-1.5 text-red-600/60 hover:text-red-600 hover:bg-red-50 rounded-lg lg:opacity-0 group-hover:opacity-100 transition-opacity"
               >
                 <Trash2 className="w-4 h-4" />
               </button>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pr-8">
                 <div>
-                  <label className="text-[10px] text-[#6E6A62] block mb-1">Company</label>
-                  <input type="text" value={item.company} onChange={e => updateDraft(d => {
+                  <label htmlFor={`exp-company-${item.id}`} className="text-[10px] text-[#6E6A62] block mb-1">Company</label>
+                  <input id={`exp-company-${item.id}`} type="text" value={item.company} onChange={e => updateDraft(d => {
                     const s = d.sections.find(sec => sec.type === 'experience') as any;
                     const i = s.items.find((x: any) => x.id === item.id);
                     if (i) i.company = e.target.value;
                   })} className="w-full border border-[#E2DACF] rounded-lg px-2 py-1.5 text-xs focus:ring-1 focus:ring-[#AAC06A]/60 outline-none" />
                 </div>
                 <div>
-                  <label className="text-[10px] text-[#6E6A62] block mb-1">Role</label>
-                  <input type="text" value={item.role} onChange={e => updateDraft(d => {
+                  <label htmlFor={`role-${item.id}`} className="text-[10px] text-[#6E6A62] block mb-1">Role</label>
+                  <input id={`role-${item.id}`} type="text" value={item.role} onChange={e => updateDraft(d => {
                     const s = d.sections.find(sec => sec.type === 'experience') as any;
                     const i = s.items.find((x: any) => x.id === item.id);
                     if (i) i.role = e.target.value;
@@ -486,16 +505,16 @@ const RecognitionReview: React.FC<{
                 </div>
                 <div className="flex gap-2 sm:col-span-2">
                   <div className="flex-1">
-                    <label className="text-[10px] text-[#6E6A62] block mb-1">Start Date</label>
-                    <input type="text" value={item.startDate} onChange={e => updateDraft(d => {
+                    <label htmlFor={`start-${item.id}`} className="text-[10px] text-[#6E6A62] block mb-1">Start Date</label>
+                    <input id={`start-${item.id}`} type="text" value={item.startDate} onChange={e => updateDraft(d => {
                       const s = d.sections.find(sec => sec.type === 'experience') as any;
                       const i = s.items.find((x: any) => x.id === item.id);
                       if (i) i.startDate = e.target.value;
                     })} className="w-full border border-[#E2DACF] rounded-lg px-2 py-1.5 text-xs focus:ring-1 focus:ring-[#AAC06A]/60 outline-none" />
                   </div>
                   <div className="flex-1">
-                    <label className="text-[10px] text-[#6E6A62] block mb-1">End Date</label>
-                    <input type="text" value={item.endDate} onChange={e => updateDraft(d => {
+                    <label htmlFor={`end-${item.id}`} className="text-[10px] text-[#6E6A62] block mb-1">End Date</label>
+                    <input id={`end-${item.id}`} type="text" value={item.endDate} onChange={e => updateDraft(d => {
                       const s = d.sections.find(sec => sec.type === 'experience') as any;
                       const i = s.items.find((x: any) => x.id === item.id);
                       if (i) i.endDate = e.target.value;
@@ -519,11 +538,13 @@ const RecognitionReview: React.FC<{
                     />
                     <button 
                       type="button" 
+
                       onClick={() => updateDraft(d => {
                         const s = d.sections.find(sec => sec.type === 'experience') as any;
                         const i = s.items.find((x: any) => x.id === item.id);
                         if (i) i.bullets = i.bullets.filter((x: any) => x.id !== b.id);
                       })}
+
                       className="p-1.5 h-[32px] shrink-0 text-red-600/60 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -574,22 +595,23 @@ const RecognitionReview: React.FC<{
                   const s = d.sections.find(sec => sec.type === 'projects') as any;
                   if (s) s.items = s.items.filter((i: any) => i.id !== item.id);
                 })}
+                aria-label="Delete"
                 className="absolute top-2 right-2 p-1.5 text-red-600/60 hover:text-red-600 hover:bg-red-50 rounded-lg lg:opacity-0 group-hover:opacity-100 transition-opacity"
               >
                 <Trash2 className="w-4 h-4" />
               </button>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pr-8">
                 <div>
-                  <label className="text-[10px] text-[#6E6A62] block mb-1">Project Name</label>
-                  <input type="text" value={item.name} onChange={e => updateDraft(d => {
+                  <label htmlFor={`proj-name-${item.id}`} className="text-[10px] text-[#6E6A62] block mb-1">Project Name</label>
+                  <input id={`proj-name-${item.id}`} type="text" value={item.name} onChange={e => updateDraft(d => {
                     const s = d.sections.find(sec => sec.type === 'projects') as any;
                     const i = s.items.find((x: any) => x.id === item.id);
                     if (i) i.name = e.target.value;
                   })} className="w-full border border-[#E2DACF] rounded-lg px-2 py-1.5 text-xs focus:ring-1 focus:ring-[#AAC06A]/60 outline-none" />
                 </div>
                 <div>
-                  <label className="text-[10px] text-[#6E6A62] block mb-1">Role</label>
-                  <input type="text" value={item.role} onChange={e => updateDraft(d => {
+                  <label htmlFor={`role-${item.id}`} className="text-[10px] text-[#6E6A62] block mb-1">Role</label>
+                  <input id={`role-${item.id}`} type="text" value={item.role} onChange={e => updateDraft(d => {
                     const s = d.sections.find(sec => sec.type === 'projects') as any;
                     const i = s.items.find((x: any) => x.id === item.id);
                     if (i) i.role = e.target.value;
@@ -597,16 +619,16 @@ const RecognitionReview: React.FC<{
                 </div>
                 <div className="flex gap-2 sm:col-span-2">
                   <div className="flex-1">
-                    <label className="text-[10px] text-[#6E6A62] block mb-1">Start Date</label>
-                    <input type="text" value={item.startDate} onChange={e => updateDraft(d => {
+                    <label htmlFor={`start-${item.id}`} className="text-[10px] text-[#6E6A62] block mb-1">Start Date</label>
+                    <input id={`start-${item.id}`} type="text" value={item.startDate} onChange={e => updateDraft(d => {
                       const s = d.sections.find(sec => sec.type === 'projects') as any;
                       const i = s.items.find((x: any) => x.id === item.id);
                       if (i) i.startDate = e.target.value;
                     })} className="w-full border border-[#E2DACF] rounded-lg px-2 py-1.5 text-xs focus:ring-1 focus:ring-[#AAC06A]/60 outline-none" />
                   </div>
                   <div className="flex-1">
-                    <label className="text-[10px] text-[#6E6A62] block mb-1">End Date</label>
-                    <input type="text" value={item.endDate} onChange={e => updateDraft(d => {
+                    <label htmlFor={`end-${item.id}`} className="text-[10px] text-[#6E6A62] block mb-1">End Date</label>
+                    <input id={`end-${item.id}`} type="text" value={item.endDate} onChange={e => updateDraft(d => {
                       const s = d.sections.find(sec => sec.type === 'projects') as any;
                       const i = s.items.find((x: any) => x.id === item.id);
                       if (i) i.endDate = e.target.value;
@@ -630,11 +652,13 @@ const RecognitionReview: React.FC<{
                     />
                     <button 
                       type="button" 
+
                       onClick={() => updateDraft(d => {
                         const s = d.sections.find(sec => sec.type === 'projects') as any;
                         const i = s.items.find((x: any) => x.id === item.id);
                         if (i) i.bullets = i.bullets.filter((x: any) => x.id !== b.id);
                       })}
+
                       className="p-1.5 h-[32px] shrink-0 text-red-600/60 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                     >
                       <Trash2 className="w-4 h-4" />
