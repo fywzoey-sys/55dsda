@@ -34,10 +34,25 @@ function loadStorage(): { resumes: Resume[]; activeResumeId: string; library: Li
               // we don't write here, but when the App renders, latestDataRef will eventually persist it
             }
             let validLibrary = parsed.library;
-            if (!isValidLibraryArray(validLibrary)) {
+            let needsWriteBack = false;
+            if (validLibrary === undefined) {
               validLibrary = JSON.parse(JSON.stringify(libraryItems));
+              needsWriteBack = true;
+            } else if (!isValidLibraryArray(validLibrary)) {
+              validLibrary = JSON.parse(JSON.stringify(libraryItems));
+              needsWriteBack = true;
             }
-            return { resumes: parsed.resumes, activeResumeId: validActiveId, library: validLibrary };
+            
+            const result = { resumes: parsed.resumes, activeResumeId: validActiveId, library: validLibrary };
+            
+            if (needsWriteBack) {
+              try {
+                localStorage.setItem(STORAGE_KEY_V2, JSON.stringify(result));
+              } catch (err) {
+                console.error('Failed to migrate library to V2', err);
+              }
+            }
+            return result;
           }
         }
       }
@@ -169,7 +184,7 @@ export default function App() {
         window.clearTimeout(debounceTimerRef.current);
       }
     };
-  }, [resumes, currentResumeId]);
+  }, [resumes, currentResumeId, library]);
 
   
   // Escape key to close drawers

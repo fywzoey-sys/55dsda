@@ -110,7 +110,7 @@ export const SortableBullet: React.FC<SortableBulletProps> = ({
         {menuOpen && (
           <>
             <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)} />
-            <div className="absolute right-0 top-full mt-1 w-32 bg-white border border-[#E2DACF] rounded-lg shadow-lg z-50 py-1 overflow-hidden">
+            <div className="absolute right-0 top-full mt-1 w-40 bg-white border border-[#E2DACF] rounded-lg shadow-lg z-50 py-1 overflow-hidden">
               <button
                 type="button"
                 disabled={index === 0}

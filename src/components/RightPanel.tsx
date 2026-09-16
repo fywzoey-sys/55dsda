@@ -155,7 +155,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({
                     Experience Library
                   </span>
                   <span className="text-[11px] px-2 py-0.5 bg-white/50 rounded-md font-medium text-[#1F1F1B]">
-                    Saved Bullets
+                    {library.length} saved
                   </span>
                 </div>
 
@@ -198,6 +198,11 @@ export const RightPanel: React.FC<RightPanelProps> = ({
                             {item.company || 'Unnamed Company'}
                           </h3>
                           <p className="text-[11px] text-[#6E6A62]">{item.role || 'Role'}</p>
+                          {(item.startDate || item.endDate) && (
+                            <p className="text-[10px] text-[#6E6A62] mt-0.5 opacity-80">
+                              {item.startDate}{item.startDate && item.endDate ? ' – ' : ''}{item.endDate}
+                            </p>
+                          )}
                         </div>
                         
                         <div className="flex items-center gap-1 shrink-0">
@@ -219,6 +224,8 @@ export const RightPanel: React.FC<RightPanelProps> = ({
                               type="button"
                               onClick={() => setMenuOpenId(isMenuOpen ? null : item.id)}
                               className="w-7 h-7 rounded-md flex items-center justify-center transition-colors hover:bg-black/5 text-[#6E6A62]"
+                              aria-label={`More options for ${item.company || 'library item'}`}
+                              aria-expanded={isMenuOpen}
                             >
                               <MoreHorizontal className="w-4 h-4" />
                             </button>
