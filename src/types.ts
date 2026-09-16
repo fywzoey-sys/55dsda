@@ -87,3 +87,19 @@ export interface LibraryExperience {
   endDate: string;
   bullets: Bullet[];
 }
+
+export interface ImportWarning {
+  id: string;
+  message: string;
+  sourceLine?: string;
+}
+
+export interface ParsedResumeDraft {
+  name: string;
+  fullName: string;
+  title: string;
+  contact: ContactInfo;
+  sections: ResumeSection[];
+  warnings: ImportWarning[];
+  unrecognizedLines: string[];
+}

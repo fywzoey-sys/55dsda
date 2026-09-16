@@ -13,6 +13,7 @@ import { generateId } from './utils/id';
 import { Resume, RightTabType, LibraryExperience, Bullet, ExperienceSection, Experience } from './types';
 import { isValidResumeRecord, isValidResumeArray, isResume, isValidLibraryArray } from './utils/validation';
 import { Menu, X, Briefcase, BookOpen } from 'lucide-react';
+import { ResumeImportDialog } from './components/import/ResumeImportDialog';
 
 const STORAGE_KEY_V2 = 'resume-space:data:v2';
 const STORAGE_KEY_V1 = 'resume-space:resumes:v1';
@@ -108,6 +109,7 @@ export default function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const [mobileRightOpen, setMobileRightOpen] = useState<boolean>(false);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('saved');
+  const [isImportOpen, setIsImportOpen] = useState(false);
 
   const isInitialMount = useRef<boolean>(true);
   const debounceTimerRef = useRef<number | null>(null);
@@ -330,6 +332,13 @@ export default function App() {
     setResumes((prev) => prev.map(r => r.id === updatedResume.id ? { ...updatedResume, updatedAt: new Date().toISOString() } : r));
   }, []);
 
+
+  const handleConfirmImport = useCallback((newResume: Resume) => {
+    setResumes(prev => [...prev, newResume]);
+    setCurrentResumeId(newResume.id);
+    setIsImportOpen(false);
+  }, []);
+
   const handleCreateResume = useCallback(() => {
     const newId = `resume-${Date.now()}`;
     const newResume: Resume = {
@@ -456,7 +465,7 @@ export default function App() {
 
         {/* Central Workspace */}
         <main className="flex-1 flex flex-col bg-[#EFE7D9] lg:rounded-[20px] p-4 lg:p-6 lg:border border-[#E2DACF]/60 min-h-0 relative">
-          <Toolbar currentResumeName={currentResume.name} saveStatus={saveStatus} />
+          <Toolbar currentResumeName={currentResume.name} saveStatus={saveStatus} onOpenImport={() => setIsImportOpen(true)} />
           <div className="flex-1 overflow-y-auto min-h-0 workspace-scroll lg:pr-2 pb-[max(1rem,env(safe-area-inset-bottom))]">
             <ResumePaper
               resume={currentResume}
@@ -494,6 +503,12 @@ export default function App() {
           />
         </div>
       </div>
+      {isImportOpen && (
+        <ResumeImportDialog 
+          onClose={() => setIsImportOpen(false)} 
+          onConfirm={handleConfirmImport} 
+        />
+      )}
     </div>
   );
 };

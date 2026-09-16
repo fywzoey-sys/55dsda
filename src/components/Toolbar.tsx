@@ -1,14 +1,15 @@
 import React from 'react';
-import { Download, Eye } from 'lucide-react';
+import { Download, Eye, Upload } from 'lucide-react';
 
 export type SaveStatus = 'saved' | 'saving' | 'error';
 
 interface ToolbarProps {
   currentResumeName: string;
   saveStatus: SaveStatus;
+  onOpenImport: () => void;
 }
 
-export const Toolbar: React.FC<ToolbarProps> = ({ currentResumeName, saveStatus }) => {
+export const Toolbar: React.FC<ToolbarProps> = ({ currentResumeName, saveStatus, onOpenImport }) => {
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 px-1 py-3 mb-4">
       {/* Left info */}
@@ -69,6 +70,19 @@ export const Toolbar: React.FC<ToolbarProps> = ({ currentResumeName, saveStatus 
           <span>Preview</span>
         </button>
 
+        
+        {/* Import Button */}
+        <button
+          type="button"
+          onClick={onOpenImport}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-[#1F1F1B] bg-white/60 hover:bg-white transition-colors border border-[#E2DACF]"
+          title="Import resume"
+          aria-label="Import resume"
+        >
+          <Upload className="w-3.5 h-3.5" />
+          <span className="hidden sm:inline">Import</span>
+        </button>
+        
         {/* Export PDF Button */}
         <button
           type="button"
