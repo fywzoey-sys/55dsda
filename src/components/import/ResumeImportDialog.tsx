@@ -24,7 +24,9 @@ export const ResumeImportDialog: React.FC<ResumeImportDialogProps> = ({ onClose,
   const [sourceTab, setSourceTab] = useState<'text' | 'file'>('text');
   const [text, setText] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [fileError, setFileError] = useState<string | null>(null);
+  const [validationError, setValidationError] = useState<string | null>(null);
+  const [runtimeError, setRuntimeError] = useState<string | null>(null);
+  const fileError = validationError || runtimeError;
   const [isExtracting, setIsExtracting] = useState(false);
   const [draft, setDraft] = useState<ParsedResumeDraft | null>(null);
   const [showDiscard, setShowDiscard] = useState(false);
@@ -100,11 +102,12 @@ export const ResumeImportDialog: React.FC<ResumeImportDialogProps> = ({ onClose,
     }
     setIsExtracting(false);
     setSelectedFile(file);
+    setRuntimeError(null);
     const validation = validateResumeImportFile(file);
     if (!validation.valid) {
-      setFileError(validation.error || 'This file type is not supported.');
+      setValidationError(validation.error || 'This file type is not supported.');
     } else {
-      setFileError(null);
+      setValidationError(null);
     }
   };
 
@@ -146,7 +149,8 @@ export const ResumeImportDialog: React.FC<ResumeImportDialogProps> = ({ onClose,
     }
     setIsExtracting(false);
     setSelectedFile(null);
-    setFileError(null);
+    setValidationError(null);
+    setRuntimeError(null);
   };
 
   const handleParseFile = async () => {
@@ -154,19 +158,23 @@ export const ResumeImportDialog: React.FC<ResumeImportDialogProps> = ({ onClose,
 
     const validation = validateResumeImportFile(selectedFile);
     if (!validation.valid) {
-      setFileError(validation.error || 'This file type is not supported.');
+      setValidationError(validation.error || 'This file type is not supported.');
       return;
     }
 
+    setValidationError(null);
+    setRuntimeError(null);
     setIsExtracting(true);
-    setFileError(null);
     const currentRequestId = ++requestIdRef.current;
 
     // IMAGE OCR FLOW
     if (validation.fileType === 'image') {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
       const controller = new AbortController();
       abortControllerRef.current = controller;
-      setOcrProgress({ status: 'Preparing image…', progress: 0 });
+      setOcrProgress({ status: 'Preparing image…' });
 
       try {
         const result = await extractResumeTextFromImage(selectedFile, {
@@ -199,7 +207,9 @@ export const ResumeImportDialog: React.FC<ResumeImportDialogProps> = ({ onClose,
           return;
         }
         const message = err instanceof Error ? err.message : 'This image could not be recognized.';
-        setFileError(message);
+        if (message !== 'OCR was cancelled.') {
+          setRuntimeError(message);
+        }
       } finally {
         if (isMountedRef.current && currentRequestId === requestIdRef.current) {
           setIsExtracting(false);
@@ -233,7 +243,7 @@ export const ResumeImportDialog: React.FC<ResumeImportDialogProps> = ({ onClose,
         return;
       }
       const message = err instanceof Error ? err.message : 'This document could not be read.';
-      setFileError(message);
+      setRuntimeError(message);
     } finally {
       if (isMountedRef.current && currentRequestId === requestIdRef.current) {
         setIsExtracting(false);
@@ -405,12 +415,13 @@ export const ResumeImportDialog: React.FC<ResumeImportDialogProps> = ({ onClose,
                     />
 
                     {!selectedFile ? (
-                      <div
+                      <button
+                        type="button"
                         onDragOver={handleDragOver}
                         onDragLeave={handleDragLeave}
                         onDrop={handleDrop}
                         onClick={() => fileInputRef.current?.click()}
-                        className={`border-2 border-dashed rounded-xl p-8 sm:p-12 flex flex-col items-center justify-center cursor-pointer transition-colors text-center ${
+                        className={`w-full border-2 border-dashed rounded-xl p-8 sm:p-12 flex flex-col items-center justify-center cursor-pointer transition-colors text-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[#8B9B58] focus-visible:ring-offset-2 ${
                           isDragging
                             ? 'border-[#AAC06A] bg-[#AAC06A]/10'
                             : 'border-[#E2DACF] hover:border-[#AAC06A]/70 bg-[#FFFEFA]'
@@ -428,7 +439,7 @@ export const ResumeImportDialog: React.FC<ResumeImportDialogProps> = ({ onClose,
                         <p className="text-xs text-[#6E6A62] mt-0.5">
                           Maximum file size: 10 MB
                         </p>
-                      </div>
+                      </button>
                     ) : isImageFile(selectedFile) ? (
                       <div className="space-y-4">
                         <ImageFilePreview
@@ -537,7 +548,7 @@ export const ResumeImportDialog: React.FC<ResumeImportDialogProps> = ({ onClose,
                 ) : (
                   <button
                     type="button"
-                    disabled={!selectedFile || fileError !== null || isExtracting}
+                    disabled={!selectedFile || validationError !== null || isExtracting}
                     onClick={handleParseFile}
                     className="px-4 py-2 rounded-lg text-xs font-medium text-[#1F1F1B] bg-[#D9DFAD] hover:bg-[#C9D19D] disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
                   >

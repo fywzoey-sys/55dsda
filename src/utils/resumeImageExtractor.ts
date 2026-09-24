@@ -22,6 +22,71 @@ export interface ImageExtractionResult {
 }
 
 /**
+ * Normalizes caught OCR runtime errors safely.
+ * Asset, network, or worker loading failures are mapped to a clear user-facing message.
+ * Internal stack traces or URL implementation details are never exposed to the UI.
+ */
+export function normalizeOcrError(err: unknown, isAborted?: boolean): string {
+  if (isAborted) {
+    return 'OCR was cancelled.';
+  }
+
+  let raw = '';
+  if (err instanceof Error) {
+    raw = err.message || '';
+  } else if (typeof err === 'string') {
+    raw = err;
+  } else if (err && typeof err === 'object') {
+    const record = err as Record<string, unknown>;
+    if (typeof record.message === 'string') {
+      raw = record.message;
+    } else if (typeof record.error === 'string') {
+      raw = record.error;
+    } else if (record.error instanceof Error) {
+      raw = record.error.message;
+    } else {
+      raw = String(err);
+    }
+  } else {
+    raw = String(err || '');
+  }
+
+  const lower = raw.toLowerCase();
+
+  // Explicit cancellation
+  if (lower.includes('ocr was cancelled') || lower.includes('cancelled') || lower.includes('aborted') || lower.includes('abort')) {
+    return 'OCR was cancelled.';
+  }
+
+  // Known validation / dimension / content messages
+  if (
+    raw.startsWith('This image file appears to be corrupted') ||
+    raw.startsWith('Image dimensions exceed') ||
+    raw.startsWith('No readable resume text was recognized')
+  ) {
+    return raw;
+  }
+
+  // Asset loading, network, or worker script loading failures (404, importScripts, etc.)
+  if (
+    lower.includes('failed to load') ||
+    lower.includes('importscripts') ||
+    lower.includes('failed to fetch') ||
+    lower.includes('network') ||
+    lower.includes('404') ||
+    lower.includes('not found') ||
+    lower.includes('traineddata') ||
+    lower.includes('ocr assets failed') ||
+    (lower.includes('wasm') && (lower.includes('load') || lower.includes('fetch') || lower.includes('compile') || lower.includes('instantiate'))) ||
+    (lower.includes('worker') && (lower.includes('load') || lower.includes('script') || lower.includes('fetch')))
+  ) {
+    return 'OCR files could not be loaded. Please check your connection and try again.';
+  }
+
+  return 'Recognition failed. Please try a clearer image or check your connection and try again.';
+}
+
+/**
  * Safely decodes an image file in the browser environment,
  * verifies its dimensions against the safety limits, and prepares
  * a canvas or image element for OCR.
@@ -109,7 +174,7 @@ export async function decodeAndValidateImage(
 
 /**
  * Extracts resume text locally using Tesseract.js in a Web Worker
- * with same-origin self-hosted OCR assets (worker, core WASM, eng + chi_sim).
+ * with same-origin self-hosted OCR assets (worker, all 6 core WASM variants, eng + chi_sim).
  */
 export async function extractResumeTextFromImage(
   file: File,
@@ -121,7 +186,7 @@ export async function extractResumeTextFromImage(
     throw new Error('OCR was cancelled.');
   }
 
-  onProgress?.({ status: 'Preparing image…', progress: 0 });
+  onProgress?.({ status: 'Preparing image…' });
 
   // 1. Decode & validate image dimensions safely
   const { element, cleanup } = await decodeAndValidateImage(file);
@@ -135,9 +200,9 @@ export async function extractResumeTextFromImage(
   let tesseractModule;
   try {
     tesseractModule = await import('tesseract.js');
-  } catch {
+  } catch (err: unknown) {
     cleanup();
-    throw new Error('OCR assets failed to load.');
+    throw new Error(normalizeOcrError(err, signal?.aborted));
   }
 
   if (signal?.aborted) {
@@ -147,6 +212,21 @@ export async function extractResumeTextFromImage(
 
   const { createWorker, OEM } = tesseractModule;
   let worker: any = null;
+  let isCancelled = Boolean(signal?.aborted);
+
+  // Define abort listener to handle cancellation during worker creation and recognition
+  const onAbort = () => {
+    isCancelled = true;
+    if (worker) {
+      try {
+        worker.terminate().catch(() => {});
+      } catch {}
+    }
+  };
+
+  if (signal) {
+    signal.addEventListener('abort', onAbort, { once: true });
+  }
 
   try {
     // 3. Resolve base URL for same-origin static OCR assets
@@ -159,52 +239,63 @@ export async function extractResumeTextFromImage(
     const langPath = `${basePath}/tesseract/lang`;
 
     // 4. Initialize Tesseract worker with mixed English and Simplified Chinese
-    worker = await createWorker(['eng', 'chi_sim'], OEM.LSTM_ONLY, {
+    const workerPromise = createWorker(['eng', 'chi_sim'], OEM.LSTM_ONLY, {
       workerPath,
       corePath,
       langPath,
       gzip: true,
       logger: (m: any) => {
-        if (!onProgress || signal?.aborted) return;
+        if (!onProgress || signal?.aborted || isCancelled) return;
         const statusStr = (m.status || '').toLowerCase();
-        const rawProgress = typeof m.progress === 'number' ? m.progress : 0;
+        const rawProgress = typeof m.progress === 'number' ? m.progress : undefined;
 
         if (statusStr.includes('core') || statusStr.includes('initializing tesseract')) {
-          onProgress({ status: 'Loading OCR…', progress: Math.round(rawProgress * 100) });
+          onProgress({
+            status: 'Loading OCR…',
+            progress: rawProgress !== undefined ? Math.round(rawProgress * 100) : undefined
+          });
         } else if (statusStr.includes('traineddata') || statusStr.includes('loading language') || statusStr.includes('api')) {
-          onProgress({ status: 'Loading English and Chinese recognition data…', progress: Math.round(rawProgress * 100) });
+          onProgress({
+            status: 'Loading English and Chinese recognition data…',
+            progress: rawProgress !== undefined ? Math.round(rawProgress * 100) : undefined
+          });
         } else if (statusStr.includes('recogniz')) {
-          onProgress({ status: 'Recognizing text…', progress: Math.round(rawProgress * 100) });
+          onProgress({
+            status: 'Recognizing text…',
+            progress: rawProgress !== undefined ? Math.round(rawProgress * 100) : undefined
+          });
         }
       }
     });
 
-    if (signal?.aborted) {
+    // If cancellation occurs while createWorker() is resolving, terminate it immediately upon resolution
+    workerPromise
+      .then((createdWorker) => {
+        if (signal?.aborted || isCancelled) {
+          try {
+            createdWorker.terminate().catch(() => {});
+          } catch {}
+        }
+      })
+      .catch(() => {}); // Prevent unhandled promise rejections on cancel
+
+    worker = await workerPromise;
+
+    if (signal?.aborted || isCancelled) {
+      if (worker) {
+        try {
+          await worker.terminate();
+        } catch {}
+        worker = null;
+      }
       throw new Error('OCR was cancelled.');
     }
 
-    onProgress?.({ status: 'Recognizing text…', progress: 0 });
-
-    // Handle abort during recognition
-    const abortHandler = () => {
-      try {
-        if (worker) {
-          worker.terminate().catch(() => {});
-        }
-      } catch {}
-    };
-
-    if (signal) {
-      signal.addEventListener('abort', abortHandler, { once: true });
-    }
+    onProgress?.({ status: 'Recognizing text…' });
 
     const recognizeResult = await worker.recognize(element);
 
-    if (signal) {
-      signal.removeEventListener('abort', abortHandler);
-    }
-
-    if (signal?.aborted) {
+    if (signal?.aborted || isCancelled) {
       throw new Error('OCR was cancelled.');
     }
 
@@ -230,12 +321,13 @@ export async function extractResumeTextFromImage(
       warnings
     };
   } catch (err: unknown) {
-    if (signal?.aborted) {
-      throw new Error('OCR was cancelled.');
-    }
-    const message = err instanceof Error ? err.message : 'Unexpected recognition failure.';
-    throw new Error(message);
+    const isAbortedNow = Boolean(signal?.aborted || isCancelled);
+    const friendlyMessage = normalizeOcrError(err, isAbortedNow);
+    throw new Error(friendlyMessage);
   } finally {
+    if (signal) {
+      signal.removeEventListener('abort', onAbort);
+    }
     cleanup();
     if (worker) {
       try {

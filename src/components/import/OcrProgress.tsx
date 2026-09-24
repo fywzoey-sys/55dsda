@@ -12,7 +12,7 @@ export const OcrProgress: React.FC<OcrProgressProps> = ({
   progress,
   onCancel
 }) => {
-  const hasPercentage = typeof progress === 'number' && progress > 0 && progress <= 100;
+  const hasPercentage = typeof progress === 'number' && progress >= 0 && progress <= 100;
 
   return (
     <div className="p-4 bg-[#F5F2EB] rounded-xl border border-[#E2DACF] space-y-3">
@@ -39,12 +39,23 @@ export const OcrProgress: React.FC<OcrProgressProps> = ({
         </div>
       </div>
 
-      {/* Progress bar */}
-      <div className="w-full bg-[#E2DACF]/60 rounded-full h-1.5 overflow-hidden">
-        <div
-          className="bg-[#8B9B58] h-1.5 rounded-full transition-all duration-300 ease-out"
-          style={{ width: `${hasPercentage ? progress : 15}%` }}
-        />
+      {/* Progress bar: Determinate if real percentage is available, Indeterminate pulsating if not */}
+      <div
+        className="w-full bg-[#E2DACF]/60 rounded-full h-1.5 overflow-hidden"
+        role="progressbar"
+        aria-valuenow={hasPercentage ? progress : undefined}
+        aria-valuemin={hasPercentage ? 0 : undefined}
+        aria-valuemax={hasPercentage ? 100 : undefined}
+        aria-label={status || 'OCR Progress'}
+      >
+        {hasPercentage ? (
+          <div
+            className="bg-[#8B9B58] h-1.5 rounded-full transition-all duration-300 ease-out"
+            style={{ width: `${progress}%` }}
+          />
+        ) : (
+          <div className="bg-[#8B9B58]/70 h-1.5 rounded-full w-full animate-pulse" />
+        )}
       </div>
 
       <p className="text-[11px] text-[#6E6A62]">

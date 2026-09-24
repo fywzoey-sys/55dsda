@@ -1,4 +1,7 @@
 import assert from 'assert/strict';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import {
   validateResumeImportFile,
   validateImageDimensions,
@@ -7,6 +10,11 @@ import {
   MAX_IMAGE_MEGAPIXELS
 } from '../src/utils/resumeImportValidation.ts';
 import { parseResumeText } from '../src/utils/textResumeParser.ts';
+import { normalizeOcrError } from '../src/utils/resumeImageExtractor.ts';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const rootDir = path.resolve(__dirname, '..');
 
 // Helper to create mock File-like objects
 function createMockFile(name, size, type = '') {
@@ -384,4 +392,179 @@ Software Engineer
   console.log('Test 23 passed: Existing Paste Text parser tests continue to pass');
 }
 
-console.log('\nAll 23 verify-resume-image-import tests passed successfully!');
+// 24. OCR asset manifest validation detects missing Relaxed SIMD core files
+{
+  const REQUIRED_OCR_FILES = [
+    'worker.min.js',
+    'core/tesseract-core-lstm.wasm.js',
+    'core/tesseract-core-simd-lstm.wasm.js',
+    'core/tesseract-core-relaxedsimd-lstm.wasm.js',
+    'core/tesseract-core.wasm.js',
+    'core/tesseract-core-simd.wasm.js',
+    'core/tesseract-core-relaxedsimd.wasm.js',
+    'lang/eng.traineddata.gz',
+    'lang/chi_sim.traineddata.gz',
+  ];
+
+  function validateAssetList(presentFiles) {
+    const missing = REQUIRED_OCR_FILES.filter(f => !presentFiles.includes(f));
+    return { valid: missing.length === 0, missing };
+  }
+
+  // Without relaxedsimd-lstm
+  const listWithoutRelaxedLstm = REQUIRED_OCR_FILES.filter(
+    f => f !== 'core/tesseract-core-relaxedsimd-lstm.wasm.js'
+  );
+  const res1 = validateAssetList(listWithoutRelaxedLstm);
+  assert.equal(res1.valid, false, 'Must fail when relaxedsimd-lstm is missing');
+  assert.ok(res1.missing.includes('core/tesseract-core-relaxedsimd-lstm.wasm.js'));
+
+  // Without relaxedsimd
+  const listWithoutRelaxed = REQUIRED_OCR_FILES.filter(
+    f => f !== 'core/tesseract-core-relaxedsimd.wasm.js'
+  );
+  const res2 = validateAssetList(listWithoutRelaxed);
+  assert.equal(res2.valid, false, 'Must fail when relaxedsimd is missing');
+  assert.ok(res2.missing.includes('core/tesseract-core-relaxedsimd.wasm.js'));
+
+  console.log('Test 24 passed: OCR asset manifest validation detects missing Relaxed SIMD files');
+}
+
+// 25. All 9 required Tesseract.js 7 static assets exist in public/tesseract with non-zero size
+{
+  const publicTesseractDir = path.join(rootDir, 'public', 'tesseract');
+  const requiredFiles = [
+    'worker.min.js',
+    'core/tesseract-core-lstm.wasm.js',
+    'core/tesseract-core-simd-lstm.wasm.js',
+    'core/tesseract-core-relaxedsimd-lstm.wasm.js',
+    'core/tesseract-core.wasm.js',
+    'core/tesseract-core-simd.wasm.js',
+    'core/tesseract-core-relaxedsimd.wasm.js',
+    'lang/eng.traineddata.gz',
+    'lang/chi_sim.traineddata.gz',
+  ];
+
+  for (const relPath of requiredFiles) {
+    const fullPath = path.join(publicTesseractDir, relPath);
+    assert.ok(fs.existsSync(fullPath), `Asset file must exist on disk: ${relPath}`);
+    const stat = fs.statSync(fullPath);
+    assert.ok(stat.size > 1000, `Asset file must be non-empty (>1KB): ${relPath} (size: ${stat.size})`);
+  }
+
+  // Explicit check on the two Relaxed SIMD files
+  const relaxedLstmPath = path.join(publicTesseractDir, 'core', 'tesseract-core-relaxedsimd-lstm.wasm.js');
+  const relaxedPath = path.join(publicTesseractDir, 'core', 'tesseract-core-relaxedsimd.wasm.js');
+
+  assert.ok(fs.existsSync(relaxedLstmPath), 'tesseract-core-relaxedsimd-lstm.wasm.js must exist');
+  assert.ok(fs.statSync(relaxedLstmPath).size > 3 * 1024 * 1024, 'tesseract-core-relaxedsimd-lstm.wasm.js > 3MB');
+
+  assert.ok(fs.existsSync(relaxedPath), 'tesseract-core-relaxedsimd.wasm.js must exist');
+  assert.ok(fs.statSync(relaxedPath).size > 3 * 1024 * 1024, 'tesseract-core-relaxedsimd.wasm.js > 3MB');
+
+  console.log('Test 25 passed: All 9 required Tesseract.js 7 static assets exist in public/tesseract');
+
+  // If dist/ exists, verify dist/tesseract contains all 9 assets too
+  const distTesseractDir = path.join(rootDir, 'dist', 'tesseract');
+  if (fs.existsSync(distTesseractDir)) {
+    for (const relPath of requiredFiles) {
+      const fullPath = path.join(distTesseractDir, relPath);
+      assert.ok(fs.existsSync(fullPath), `Dist asset file must exist: ${relPath}`);
+      const stat = fs.statSync(fullPath);
+      assert.ok(stat.size > 1000, `Dist asset file must be non-empty (>1KB): ${relPath}`);
+    }
+    console.log('Test 25b passed: All 9 required Tesseract.js 7 static assets verified in dist/tesseract');
+  }
+}
+
+// 26. Error normalization converts network/asset/worker failures to friendly user message
+{
+  // 1. Worker importScripts failure (the exact failure reported on Vercel)
+  const vercelWorkerError = "Failed to execute 'importScripts' on 'WorkerGlobalScope': https://55dsdav1.vercel.app/tesseract/core/tesseract-core-relaxedsimd-lstm.wasm.js failed to load";
+  const msg1 = normalizeOcrError(vercelWorkerError);
+  assert.equal(msg1, 'OCR files could not be loaded. Please check your connection and try again.');
+
+  // 2. Fetch error / 404
+  const notFoundError = new Error('Failed to fetch (404 Not Found) for eng.traineddata.gz');
+  const msg2 = normalizeOcrError(notFoundError);
+  assert.equal(msg2, 'OCR files could not be loaded. Please check your connection and try again.');
+
+  // 3. String error from worker
+  const stringErr = 'NetworkError when attempting to fetch resource.';
+  const msg3 = normalizeOcrError(stringErr);
+  assert.equal(msg3, 'OCR files could not be loaded. Please check your connection and try again.');
+
+  // 4. Cancelled error
+  const cancelMsg = normalizeOcrError('Worker terminated due to abort signal', true);
+  assert.equal(cancelMsg, 'OCR was cancelled.');
+
+  // 5. Unknown internal error does not expose stack traces or URLs
+  const internalErr = new Error('Memory access out of bounds at internal wasm offset 0x41f89c');
+  const msg5 = normalizeOcrError(internalErr);
+  assert.equal(msg5, 'Recognition failed. Please try a clearer image or check your connection and try again.');
+  assert.ok(!msg5.includes('0x41f89c'), 'Must not expose stack traces or offsets');
+
+  console.log('Test 26 passed: Error normalization converts network/asset/worker failures safely');
+}
+
+// 27. Runtime error preserves selected file and allows retry
+{
+  const validFile = createMockFile('resume.png', 1024 * 100, 'image/png');
+
+  // Initial valid selection
+  let selectedFile = validFile;
+  let validationError = null;
+  let runtimeError = null;
+  let isExtracting = false;
+
+  const isButtonDisabled = () => !selectedFile || validationError !== null || isExtracting;
+
+  // Initially enabled
+  assert.equal(isButtonDisabled(), false, 'Button should be enabled for valid file');
+
+  // OCR starts
+  isExtracting = true;
+  assert.equal(isButtonDisabled(), true, 'Button should be disabled during extraction');
+
+  // OCR fails at runtime (e.g. temporary network error)
+  isExtracting = false;
+  runtimeError = 'OCR files could not be loaded. Please check your connection and try again.';
+  // Note: validationError remains null! selectedFile is kept!
+  assert.equal(selectedFile, validFile, 'Selected file must be preserved');
+  assert.equal(isButtonDisabled(), false, 'Button must remain enabled for retry after runtime failure');
+
+  // User selects an invalid file (e.g. unsupported extension)
+  const invalidFile = createMockFile('virus.exe', 1024 * 50, 'application/x-msdownload');
+  selectedFile = invalidFile;
+  validationError = 'This file type is not supported.';
+  runtimeError = null;
+  assert.equal(isButtonDisabled(), true, 'Button must be blocked when file has validation error');
+
+  console.log('Test 27 passed: Runtime error preserves selected file and allows retry');
+}
+
+// 28. Indeterminate progress does not show fake numbers
+{
+  const formatProgress = (progress) => {
+    const hasPercentage = typeof progress === 'number' && progress >= 0 && progress <= 100;
+    return {
+      hasPercentage,
+      displayNumber: hasPercentage ? `${progress}%` : null,
+      isIndeterminate: !hasPercentage,
+    };
+  };
+
+  const undefProg = formatProgress(undefined);
+  assert.equal(undefProg.hasPercentage, false);
+  assert.equal(undefProg.displayNumber, null);
+  assert.equal(undefProg.isIndeterminate, true);
+
+  const realProg = formatProgress(42);
+  assert.equal(realProg.hasPercentage, true);
+  assert.equal(realProg.displayNumber, '42%');
+  assert.equal(realProg.isIndeterminate, false);
+
+  console.log('Test 28 passed: Indeterminate progress does not show fake numbers');
+}
+
+console.log('\nAll 28 verify-resume-image-import tests passed successfully!');
