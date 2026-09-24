@@ -442,10 +442,10 @@ export const ResumeImportDialog: React.FC<ResumeImportDialogProps> = ({ onClose,
           )}
 
           {step === 'review' && draft && (
-            <RecognitionReview 
-              draft={draft} 
-              setDraft={setDraft} 
-              onBack={() => setStep('import')} 
+            <RecognitionReview
+              draft={draft}
+              setDraft={setDraft}
+              onBack={() => setStep('import')}
               onConfirm={handleConfirm}
               onClose={handleClose}
             />
