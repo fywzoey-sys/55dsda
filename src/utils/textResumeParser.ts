@@ -23,7 +23,7 @@ export function parseResumeText(text: string): ParsedResumeDraft {
   const isBullet = (l: string) => /^([-–—•·*]\s*|(?:\d+[\.)])\s+|(?:（\d+）|\(\d+\))\s*)(.*)/.exec(l.trim());
 
   const parseDateRange = (str: string) => {
-    const match = str.match(/^(.*?)(?:\s+-\s+|\s*(?:–|—|至|to)\s*)(.*)$/i);
+    const match = str.match(/^(.*?)(?:\s+-\s+|\s+(?:to)\s+|\s*(?:–|—|至)\s*)(.*)$/i);
     if (match && match[2]) {
       return { start: match[1].trim(), end: match[2].trim() };
     }
@@ -32,6 +32,10 @@ export function parseResumeText(text: string): ParsedResumeDraft {
 
   const isDateLike = (str: string) => {
     return /\b(19|20)\d{2}\b/.test(str) || /至今|present/i.test(str);
+  };
+
+  const splitSectionLine = (l: string) => {
+    return l.split(/\s*[|｜\t]\s*|\s{4,}/).map(s => s.trim()).filter(Boolean);
   };
 
   // Normalize line endings to \n, split by \n to preserve empty lines
@@ -48,58 +52,40 @@ export function parseResumeText(text: string): ParsedResumeDraft {
 
     if (currentSection === 'education') {
       const item: Education = { id: generateId('import'), school: '', degree: '', startDate: '', endDate: '' };
-      let nonConsumedLines: string[] = [];
-      let consumedCount = 0;
-
-      for (let i = 0; i < currentItemLines.length; i++) {
-        const line = currentItemLines[i];
-        if (consumedCount === 0 && !isDateLike(line)) {
-          item.school = line;
-          consumedCount++;
-        } else if (consumedCount === 1 && !isDateLike(line) && !item.degree) {
-          item.degree = line;
-          consumedCount++;
-        } else if (isDateLike(line) && !item.startDate) {
-          const { start, end } = parseDateRange(line);
-          item.startDate = start;
-          item.endDate = end;
-          consumedCount++;
-        } else {
-          nonConsumedLines.push(line);
-        }
+      const linesCopy = [...currentItemLines];
+      const dateIdx = linesCopy.findIndex(l => isDateLike(l));
+      if (dateIdx !== -1) {
+        const dateLine = linesCopy.splice(dateIdx, 1)[0];
+        const { start, end } = parseDateRange(dateLine);
+        item.startDate = start;
+        item.endDate = end;
       }
+
+      item.school = linesCopy.shift() || '';
+      item.degree = linesCopy.shift() || '';
+      const nonConsumedLines = linesCopy;
 
       if (!item.school) {
         draft.warnings.push({ id: generateId('import'), message: 'Education is missing School name', sourceLine: currentItemLines[0] || 'Unknown' });
       }
       draft.unrecognizedLines.push(...nonConsumedLines);
-      // bullets in education? just unrecognized
       draft.unrecognizedLines.push(...currentItemBullets.map(b => b.text));
 
       eduSection.items.push(item);
-
     } else if (currentSection === 'experience') {
       const item: Experience = { id: generateId('import'), company: '', role: '', startDate: '', endDate: '', bullets: [] };
-      let nonConsumedLines: string[] = [];
-      let consumedCount = 0;
-
-      for (let i = 0; i < currentItemLines.length; i++) {
-        const line = currentItemLines[i];
-        if (consumedCount === 0 && !isDateLike(line)) {
-          item.company = line;
-          consumedCount++;
-        } else if (consumedCount === 1 && !isDateLike(line) && !item.role) {
-          item.role = line;
-          consumedCount++;
-        } else if (isDateLike(line) && !item.startDate) {
-          const { start, end } = parseDateRange(line);
-          item.startDate = start;
-          item.endDate = end;
-          consumedCount++;
-        } else {
-          nonConsumedLines.push(line);
-        }
+      const linesCopy = [...currentItemLines];
+      const dateIdx = linesCopy.findIndex(l => isDateLike(l));
+      if (dateIdx !== -1) {
+        const dateLine = linesCopy.splice(dateIdx, 1)[0];
+        const { start, end } = parseDateRange(dateLine);
+        item.startDate = start;
+        item.endDate = end;
       }
+
+      item.company = linesCopy.shift() || '';
+      item.role = linesCopy.shift() || '';
+      const nonConsumedLines = linesCopy;
 
       item.bullets = currentItemBullets.map(b => ({ id: generateId('import'), text: b.text }));
       draft.unrecognizedLines.push(...nonConsumedLines);
@@ -107,30 +93,24 @@ export function parseResumeText(text: string): ParsedResumeDraft {
       if (!item.company) {
         draft.warnings.push({ id: generateId('import'), message: 'Experience is missing Company', sourceLine: currentItemLines[0] || 'Unknown' });
       }
+      if (!item.role) {
+        draft.warnings.push({ id: generateId('import'), message: 'Experience is missing Role', sourceLine: currentItemLines[0] || 'Unknown' });
+      }
       expSection.items.push(item);
-
     } else if (currentSection === 'projects') {
       const item: Project = { id: generateId('import'), name: '', role: '', startDate: '', endDate: '', bullets: [] };
-      let nonConsumedLines: string[] = [];
-      let consumedCount = 0;
-
-      for (let i = 0; i < currentItemLines.length; i++) {
-        const line = currentItemLines[i];
-        if (consumedCount === 0 && !isDateLike(line)) {
-          item.name = line;
-          consumedCount++;
-        } else if (consumedCount === 1 && !isDateLike(line) && !item.role) {
-          item.role = line;
-          consumedCount++;
-        } else if (isDateLike(line) && !item.startDate) {
-          const { start, end } = parseDateRange(line);
-          item.startDate = start;
-          item.endDate = end;
-          consumedCount++;
-        } else {
-          nonConsumedLines.push(line);
-        }
+      const linesCopy = [...currentItemLines];
+      const dateIdx = linesCopy.findIndex(l => isDateLike(l));
+      if (dateIdx !== -1) {
+        const dateLine = linesCopy.splice(dateIdx, 1)[0];
+        const { start, end } = parseDateRange(dateLine);
+        item.startDate = start;
+        item.endDate = end;
       }
+
+      item.name = linesCopy.shift() || '';
+      item.role = linesCopy.shift() || '';
+      const nonConsumedLines = linesCopy;
 
       item.bullets = currentItemBullets.map(b => ({ id: generateId('import'), text: b.text }));
       draft.unrecognizedLines.push(...nonConsumedLines);
@@ -139,7 +119,6 @@ export function parseResumeText(text: string): ParsedResumeDraft {
         draft.warnings.push({ id: generateId('import'), message: 'Project is missing Name', sourceLine: currentItemLines[0] || 'Unknown' });
       }
       projSection.items.push(item);
-
     } else {
       // Unrecognized section lines (e.g. before first header)
       draft.unrecognizedLines.push(...currentItemLines);
@@ -189,7 +168,8 @@ export function parseResumeText(text: string): ParsedResumeDraft {
         if (currentItemBullets.length > 0) {
           flushItem();
         }
-        currentItemLines.push(line);
+        const parts = splitSectionLine(line);
+        currentItemLines.push(...parts);
       }
     }
   }
@@ -198,7 +178,7 @@ export function parseResumeText(text: string): ParsedResumeDraft {
   // Process Header Lines
   if (headerLines.length > 0) {
     // Flatten header lines by separators (pipe, bullet, tab, multi-space)
-    const flatHeaders = [];
+    const flatHeaders: string[] = [];
     for (const h of headerLines) {
       const parts = h.split(/\s*[|｜·•\t]\s*|\s{4,}/).filter(Boolean);
       flatHeaders.push(...parts);

@@ -183,18 +183,23 @@ const PasteTextStep: React.FC<{
       <div className="p-4 sm:p-5 flex-1 overflow-y-auto">
         <textarea
           value={text}
-          onChange={e => setText(e.target.value.slice(0, 50000))}
+          onChange={e => setText(e.target.value)}
           className="w-full min-h-[320px] h-full bg-[#FFFEFA] border border-[#E2DACF] rounded-xl p-4 text-sm text-[#1F1F1B] font-sans resize-none focus:outline-none focus:ring-2 focus:ring-[#AAC06A]/60"
           placeholder={"林知夏\n产品方向实习生\nlinzhixia@example.com | 138 0000 0000 | 上海\n\n教育经历\n示例大学\n信息管理与信息系统\n2022.09 - 2026.06\n\n实习经历\n校园创新中心\n产品实习生\n2025.06 - 至今\n- 整理用户访谈记录，归纳常见使用问题。\n- 协助维护需求文档，跟进需求调整。\n\n项目经历\n实习信息整理工具\n产品负责人\n2025.03 - 2025.06\n- 梳理学生管理实习信息时的常见问题。"}
         />
         <div className="flex justify-between items-center mt-2">
-          <span className="text-xs text-[#6E6A62]">
+          <span className={`text-xs ${text.length > 50000 ? 'text-red-600 font-semibold' : 'text-[#6E6A62]'}`}>
             {text.length} / 50000 characters
           </span>
           <span className="text-[11px] text-[#6E6A62] italic">
             PDF, DOCX, and image import will be added in later steps.
           </span>
         </div>
+        {text.length > 50000 && (
+          <p className="text-xs text-red-600 mt-2 font-medium">
+            Text exceeds the 50,000 character limit. Please reduce the length to proceed.
+          </p>
+        )}
       </div>
       <div className="p-4 sm:p-5 border-t border-[#E2DACF]/60 flex justify-end gap-3 shrink-0 bg-[#FFFEFA] sm:rounded-b-2xl">
         <button
@@ -206,7 +211,7 @@ const PasteTextStep: React.FC<{
         </button>
         <button
           type="button"
-          disabled={text.trim().length === 0}
+          disabled={text.trim().length === 0 || text.length > 50000}
           onClick={onParse}
           className="px-4 py-2 rounded-lg text-xs font-medium text-[#1F1F1B] bg-[#D9DFAD] hover:bg-[#C9D19D] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >

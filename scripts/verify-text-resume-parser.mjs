@@ -79,4 +79,105 @@ const expHtml = parsedHtml.sections.find(s => s.type === 'experience');
 assert.equal(expHtml.items[0].company, '<b>Test Co</b>');
 assert.equal(expHtml.items[0].bullets[0].text, '<img src=x onerror=alert(1)>');
 
+// --- Phase 4A Regression Tests ---
+
+// 1. October 2024 to Present
+const octDateText = `
+Experience
+Beta Corp
+Engineer
+October 2024 to Present
+- Built features
+`;
+const parsedOct = parseResumeText(octDateText);
+const expOct = parsedOct.sections.find(s => s.type === 'experience');
+assert.equal(expOct.items[0].startDate, 'October 2024');
+assert.equal(expOct.items[0].endDate, 'Present');
+
+// Additional date ranges
+const moreDatesText = `
+Experience
+Company A
+Role A
+June 2024 to September 2024
+
+Company B
+Role B
+2024年6月至2024年9月
+`;
+const parsedMoreDates = parseResumeText(moreDatesText);
+const expMore = parsedMoreDates.sections.find(s => s.type === 'experience');
+assert.equal(expMore.items[0].startDate, 'June 2024');
+assert.equal(expMore.items[0].endDate, 'September 2024');
+assert.equal(expMore.items[1].startDate, '2024年6月');
+assert.equal(expMore.items[1].endDate, '2024年9月');
+
+// 2. Company -> Date -> Role order (Format B)
+const orderBText = `
+Experience
+Acme
+2024-06 - 2024-09
+Product Intern
+`;
+const parsedOrderB = parseResumeText(orderBText);
+const expB = parsedOrderB.sections.find(s => s.type === 'experience');
+assert.equal(expB.items[0].company, 'Acme');
+assert.equal(expB.items[0].role, 'Product Intern');
+assert.equal(expB.items[0].startDate, '2024-06');
+assert.equal(expB.items[0].endDate, '2024-09');
+
+// 3. Company -> Role -> Date order (Format A)
+const orderAText = `
+Experience
+Acme
+Product Intern
+2024-06 - 2024-09
+`;
+const parsedOrderA = parseResumeText(orderAText);
+const expA = parsedOrderA.sections.find(s => s.type === 'experience');
+assert.equal(expA.items[0].company, 'Acme');
+assert.equal(expA.items[0].role, 'Product Intern');
+assert.equal(expA.items[0].startDate, '2024-06');
+assert.equal(expA.items[0].endDate, '2024-09');
+
+// 4. Pipe-separated inline Experience
+const pipeText = `
+Experience
+Acme | Product Intern | 2024-06 - 2024-09
+- Handled deliveries
+`;
+const parsedPipe = parseResumeText(pipeText);
+const expPipe = parsedPipe.sections.find(s => s.type === 'experience');
+assert.equal(expPipe.items[0].company, 'Acme');
+assert.equal(expPipe.items[0].role, 'Product Intern');
+assert.equal(expPipe.items[0].startDate, '2024-06');
+assert.equal(expPipe.items[0].endDate, '2024-09');
+
+// 5. Recognized Role is not added to unrecognizedLines
+assert.ok(!parsedOrderA.unrecognizedLines.includes('Product Intern'), 'Recognized Role should not be in unrecognizedLines (order A)');
+assert.ok(!parsedOrderB.unrecognizedLines.includes('Product Intern'), 'Recognized Role should not be in unrecognizedLines (order B)');
+assert.ok(!parsedPipe.unrecognizedLines.includes('Product Intern'), 'Recognized Role should not be in unrecognizedLines (pipe)');
+
+// 6. Additional unused lines are added to unrecognizedLines
+const unusedLinesText = `
+Experience
+Acme
+2024-06 - 2024-09
+Product Intern
+Extra Note Line 1
+Extra Note Line 2
+`;
+const parsedUnused = parseResumeText(unusedLinesText);
+assert.ok(parsedUnused.unrecognizedLines.includes('Extra Note Line 1'), 'Extra Note Line 1 should be in unrecognizedLines');
+assert.ok(parsedUnused.unrecognizedLines.includes('Extra Note Line 2'), 'Extra Note Line 2 should be in unrecognizedLines');
+
+// Check missing role warning
+const missingRoleText = `
+Experience
+Acme Only
+2024-06 - 2024-09
+`;
+const parsedMissingRole = parseResumeText(missingRoleText);
+assert.ok(parsedMissingRole.warnings.some(w => w.message.includes('missing Role')), 'Should have warning when Role is missing');
+
 console.log("All assertions passed!");

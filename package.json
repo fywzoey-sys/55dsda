@@ -8,7 +8,7 @@
     "build": "vite build",
     "lint": "tsc --noEmit",
     "preview": "vite preview",
-    "test:parser": "tsx scripts/verify-text-resume-parser.mjs"
+    "test:parser": "node --import tsx scripts/verify-text-resume-parser.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
