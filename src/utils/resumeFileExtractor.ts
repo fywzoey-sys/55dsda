@@ -198,6 +198,20 @@ export async function extractResumeTextFromPdf(file: File): Promise<FileExtracti
   };
 }
 
+export function normalizeDocxText(rawText: string): string {
+  // Normalize CRLF to LF
+  let text = rawText.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  // Trim spaces on blank lines
+  text = text.replace(/^[ \t]+$/gm, '');
+  // Replace runs of 2 or more newlines:
+  // If there are 3 or more newlines, that indicates intentional blank line separation between items/sections -> retain as \n\n.
+  // If there are exactly 2 newlines, that is Mammoth's normal paragraph separator -> convert to \n.
+  text = text.replace(/\n{2,}/g, (match) => {
+    return match.length >= 3 ? '\n\n' : '\n';
+  });
+  return text.trim();
+}
+
 export async function extractResumeTextFromDocx(file: File): Promise<FileExtractionResult> {
   const validation = validateResumeImportFile(file);
   if (!validation.valid) {
@@ -227,11 +241,13 @@ export async function extractResumeTextFromDocx(file: File): Promise<FileExtract
     throw new Error('This document could not be read.');
   }
 
-  const text = (result.value || '').trim();
-  const meaningfulChars = text.replace(/[\s\r\n\t\p{P}\p{S}]/gu, '');
+  const rawText = (result.value || '').trim();
+  const meaningfulChars = rawText.replace(/[\s\r\n\t\p{P}\p{S}]/gu, '');
   if (meaningfulChars.length === 0) {
     throw new Error('No readable text was found in this DOCX file.');
   }
+
+  const text = normalizeDocxText(rawText);
 
   const warnings: FileExtractionWarning[] = [];
   if (result.messages && result.messages.length > 0) {

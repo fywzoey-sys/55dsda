@@ -1,5 +1,6 @@
 import assert from 'assert/strict';
-import { validateResumeImportFile } from '../src/utils/resumeFileExtractor.ts';
+import { validateResumeImportFile, normalizeDocxText } from '../src/utils/resumeFileExtractor.ts';
+import { parseResumeText } from '../src/utils/textResumeParser.ts';
 
 // Helper to create mock File-like objects
 function createMockFile(name, size, type = '') {
@@ -93,3 +94,108 @@ console.log('Running verify-resume-file-import tests...');
 }
 
 console.log('All file validation assertions passed!');
+
+// Regression Test 1 — Single DOCX-style Experience
+{
+  const test1Input = `Alex Chen
+
+Product Intern
+
+alex@example.com | San Francisco
+
+
+
+Experience
+
+Acme Labs
+
+Product Intern
+
+2024-06 - 2024-09
+
+- Tested local DOCX import.`;
+
+  const parsed = parseResumeText(normalizeDocxText(test1Input));
+  const expSection = parsed.sections.find(s => s.type === 'experience');
+  assert.ok(expSection, 'Experience section should exist');
+  assert.equal(expSection.items.length, 1, 'Should have exactly 1 Experience');
+
+  const item = expSection.items[0];
+  assert.equal(item.company, 'Acme Labs', 'company should be Acme Labs');
+  assert.equal(item.role, 'Product Intern', 'role should be Product Intern');
+  assert.equal(item.startDate, '2024-06', 'startDate should be 2024-06');
+  assert.equal(item.endDate, '2024-09', 'endDate should be 2024-09');
+  assert.equal(item.bullets.length, 1, 'Should have exactly 1 Bullet');
+  assert.equal(item.bullets[0].text, 'Tested local DOCX import.', 'Bullet text is preserved');
+  console.log('Regression Test 1 (Single DOCX-style Experience) passed!');
+}
+
+// Regression Test 2 — Multiple DOCX-style Experiences
+{
+  const test2Input = `Experience
+
+Acme Labs
+
+Product Intern
+
+2024-06 - 2024-09
+
+- Tested local DOCX import.
+
+Beta Corp
+
+Software Engineer
+
+2023-01 - 2024-05
+
+- Developed features.`;
+
+  const parsed = parseResumeText(normalizeDocxText(test2Input));
+  const expSection = parsed.sections.find(s => s.type === 'experience');
+  assert.ok(expSection, 'Experience section should exist');
+  assert.equal(expSection.items.length, 2, 'Should have exactly 2 Experiences');
+
+  const item1 = expSection.items[0];
+  assert.equal(item1.company, 'Acme Labs');
+  assert.equal(item1.role, 'Product Intern');
+  assert.equal(item1.startDate, '2024-06');
+  assert.equal(item1.endDate, '2024-09');
+  assert.equal(item1.bullets.length, 1);
+  assert.equal(item1.bullets[0].text, 'Tested local DOCX import.');
+
+  const item2 = expSection.items[1];
+  assert.equal(item2.company, 'Beta Corp');
+  assert.equal(item2.role, 'Software Engineer');
+  assert.equal(item2.startDate, '2023-01');
+  assert.equal(item2.endDate, '2024-05');
+  assert.equal(item2.bullets.length, 1);
+  assert.equal(item2.bullets[0].text, 'Developed features.');
+  console.log('Regression Test 2 (Multiple DOCX-style Experiences) passed!');
+}
+
+// Regression Test 3 — Chinese DOCX-style Experience
+{
+  const test3Input = `实习经历
+
+校园创新中心
+
+产品实习生
+
+2025.06 - 至今
+
+- 整理用户访谈记录，归纳常见使用问题。`;
+
+  const parsed = parseResumeText(normalizeDocxText(test3Input));
+  const expSection = parsed.sections.find(s => s.type === 'experience');
+  assert.ok(expSection, 'Experience section should exist');
+  assert.equal(expSection.items.length, 1, 'Should have exactly 1 Experience');
+
+  const item = expSection.items[0];
+  assert.equal(item.company, '校园创新中心');
+  assert.equal(item.role, '产品实习生');
+  assert.equal(item.startDate, '2025.06');
+  assert.equal(item.endDate, '至今');
+  assert.equal(item.bullets.length, 1);
+  assert.equal(item.bullets[0].text, '整理用户访谈记录，归纳常见使用问题。');
+  console.log('Regression Test 3 (Chinese DOCX-style Experience) passed!');
+}
