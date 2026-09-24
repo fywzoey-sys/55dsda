@@ -23,6 +23,10 @@ export function parseResumeText(text: string): ParsedResumeDraft {
   const isBullet = (l: string) => /^([-–—•·*]\s*|(?:\d+[\.)])\s+|(?:（\d+）|\(\d+\))\s*)(.*)/.exec(l.trim());
 
   const parseDateRange = (str: string) => {
+    const presentMatch = str.match(/^(.*?)\s*(?:–|—|-|至|\bto\b)?\s*(至今|present)$/i);
+    if (presentMatch && presentMatch[1].trim()) {
+      return { start: presentMatch[1].trim(), end: presentMatch[2].trim() };
+    }
     const match = str.match(/^(.*?)(?:\s+-\s+|\s+(?:to)\s+|\s*(?:–|—|至)\s*)(.*)$/i);
     if (match && match[2]) {
       return { start: match[1].trim(), end: match[2].trim() };
@@ -214,7 +218,7 @@ export function parseResumeText(text: string): ParsedResumeDraft {
     draft.warnings.push({ id: generateId('import'), message: 'Unrecognized Full Name' });
   }
   if (draft.unrecognizedLines.length > 0) {
-    draft.warnings.push({ id: generateId('import'), message: 'Some lines were not recognized and skipped.' });
+    draft.warnings.push({ id: generateId('import'), message: 'Some lines were not recognized and were not imported automatically.' });
   }
 
   if (eduSection.items.length > 0) draft.sections.push(eduSection);

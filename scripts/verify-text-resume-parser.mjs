@@ -66,6 +66,19 @@ const expZh = parsedZh.sections.find(s => s.type === 'experience');
 assert.equal(expZh.items[0].startDate, '2024.06');
 assert.equal(expZh.items[0].endDate, '至今');
 
+// Test Chinese compact date without delimiter (2024年6月至今)
+const chineseCompactText = `
+Experience
+Test Co Compact
+Role
+2024年6月至今
+- Worked on features
+`;
+const parsedCompact = parseResumeText(chineseCompactText);
+const expCompact = parsedCompact.sections.find(s => s.type === 'experience');
+assert.equal(expCompact.items[0].startDate, '2024年6月');
+assert.equal(expCompact.items[0].endDate, '至今');
+
 // Test HTML strings remain plain text
 const htmlText = `
 Experience
