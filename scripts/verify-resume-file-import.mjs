@@ -74,17 +74,22 @@ console.log('Running verify-resume-file-import tests...');
   assert.equal(res.error, 'This file type is not supported.');
 }
 
-// 8. Image rejection
+// 8. Image validation (PNG/JPG accepted in Phase 4C, unsupported image types and disguised files rejected)
 {
   const filePng = createMockFile('scan.png', 1024 * 50, 'image/png');
   const resPng = validateResumeImportFile(filePng);
-  assert.equal(resPng.valid, false, 'Image should be rejected');
-  assert.equal(resPng.error, 'This file type is not supported.');
+  assert.equal(resPng.valid, true, 'PNG image should be accepted in Phase 4C');
+  assert.equal(resPng.fileType, 'image', 'File type should be image');
 
   const fileJpg = createMockFile('photo.jpg', 1024 * 50, 'image/jpeg');
   const resJpg = validateResumeImportFile(fileJpg);
-  assert.equal(resJpg.valid, false, 'JPEG should be rejected');
-  assert.equal(resJpg.error, 'This file type is not supported.');
+  assert.equal(resJpg.valid, true, 'JPEG should be accepted in Phase 4C');
+  assert.equal(resJpg.fileType, 'image', 'File type should be image');
+
+  const fileGif = createMockFile('animation.gif', 1024 * 50, 'image/gif');
+  const resGif = validateResumeImportFile(fileGif);
+  assert.equal(resGif.valid, false, 'GIF should be rejected');
+  assert.equal(resGif.error, 'This file type is not supported.');
 
   // Renamed image disguised as pdf
   const fakePdf = createMockFile('fake.pdf', 1024 * 50, 'image/png');

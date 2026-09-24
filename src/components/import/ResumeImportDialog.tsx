@@ -4,6 +4,9 @@ import { ParsedResumeDraft, Resume } from '../../types';
 import { parseResumeText } from '../../utils/textResumeParser';
 import { generateId } from '../../utils/id';
 import { validateResumeImportFile, extractResumeTextFromFile } from '../../utils/resumeFileExtractor';
+import { extractResumeTextFromImage, OcrProgressInfo } from '../../utils/resumeImageExtractor';
+import { ImageFilePreview } from './ImageFilePreview';
+import { OcrProgress } from './OcrProgress';
 
 interface ResumeImportDialogProps {
   onClose: () => void;
@@ -30,16 +33,52 @@ export const ResumeImportDialog: React.FC<ResumeImportDialogProps> = ({ onClose,
   const fileInputRef = useRef<HTMLInputElement>(null);
   const requestIdRef = useRef(0);
   const isMountedRef = useRef(true);
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  const [ocrProgress, setOcrProgress] = useState<OcrProgressInfo>({
+    status: 'Preparing image…',
+    progress: 0
+  });
+
+  const isImageFile = (file: File | null) => {
+    if (!file) return false;
+    const name = file.name.toLowerCase();
+    return (
+      name.endsWith('.png') ||
+      name.endsWith('.jpg') ||
+      name.endsWith('.jpeg') ||
+      name.endsWith('.webp') ||
+      file.type === 'image/png' ||
+      file.type === 'image/jpeg' ||
+      file.type === 'image/webp'
+    );
+  };
 
   useEffect(() => {
     isMountedRef.current = true;
     return () => {
       isMountedRef.current = false;
       requestIdRef.current++;
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+        abortControllerRef.current = null;
+      }
     };
   }, []);
 
+  const handleCancelOcr = () => {
+    requestIdRef.current++;
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+    setIsExtracting(false);
+  };
+
   const handleClose = () => {
+    if (isExtracting) {
+      handleCancelOcr();
+    }
     if (text.trim() !== '' || selectedFile !== null || draft !== null) {
       setShowDiscard(true);
     } else {
@@ -55,6 +94,10 @@ export const ResumeImportDialog: React.FC<ResumeImportDialogProps> = ({ onClose,
 
   const processSelectedFile = (file: File) => {
     requestIdRef.current++;
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
     setIsExtracting(false);
     setSelectedFile(file);
     const validation = validateResumeImportFile(file);
@@ -97,6 +140,10 @@ export const ResumeImportDialog: React.FC<ResumeImportDialogProps> = ({ onClose,
 
   const handleRemoveFile = () => {
     requestIdRef.current++;
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
     setIsExtracting(false);
     setSelectedFile(null);
     setFileError(null);
@@ -115,6 +162,54 @@ export const ResumeImportDialog: React.FC<ResumeImportDialogProps> = ({ onClose,
     setFileError(null);
     const currentRequestId = ++requestIdRef.current;
 
+    // IMAGE OCR FLOW
+    if (validation.fileType === 'image') {
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
+      setOcrProgress({ status: 'Preparing image…', progress: 0 });
+
+      try {
+        const result = await extractResumeTextFromImage(selectedFile, {
+          signal: controller.signal,
+          onProgress: (p) => {
+            if (isMountedRef.current && currentRequestId === requestIdRef.current) {
+              setOcrProgress(p);
+            }
+          }
+        });
+
+        if (!isMountedRef.current || currentRequestId !== requestIdRef.current || controller.signal.aborted) {
+          return;
+        }
+
+        const parsed = parseResumeText(result.text);
+        if (result.warnings && result.warnings.length > 0) {
+          parsed.warnings.push(...result.warnings);
+        }
+
+        const baseName = selectedFile.name.replace(/\.[^/.]+$/, '').trim();
+        if (baseName && (!parsed.name || parsed.name === 'Imported Resume')) {
+          parsed.name = baseName;
+        }
+
+        setDraft(parsed);
+        setStep('review');
+      } catch (err: unknown) {
+        if (!isMountedRef.current || currentRequestId !== requestIdRef.current || controller.signal.aborted) {
+          return;
+        }
+        const message = err instanceof Error ? err.message : 'This image could not be recognized.';
+        setFileError(message);
+      } finally {
+        if (isMountedRef.current && currentRequestId === requestIdRef.current) {
+          setIsExtracting(false);
+          abortControllerRef.current = null;
+        }
+      }
+      return;
+    }
+
+    // PDF / DOCX FLOW
     try {
       const result = await extractResumeTextFromFile(selectedFile);
       if (!isMountedRef.current || currentRequestId !== requestIdRef.current) {
@@ -291,9 +386,6 @@ export const ResumeImportDialog: React.FC<ResumeImportDialogProps> = ({ onClose,
                       <span className={`text-xs ${text.length > 50000 ? 'text-red-600 font-semibold' : 'text-[#6E6A62]'}`}>
                         {text.length} / 50000 characters
                       </span>
-                      <span className="text-[11px] text-[#6E6A62] italic">
-                        Image and OCR import will be added in Phase 4C.
-                      </span>
                     </div>
                     {text.length > 50000 && (
                       <p className="text-xs text-red-600 mt-2 font-medium">
@@ -308,7 +400,7 @@ export const ResumeImportDialog: React.FC<ResumeImportDialogProps> = ({ onClose,
                       ref={fileInputRef}
                       type="file"
                       className="hidden"
-                      accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                      accept="application/pdf,.pdf,.docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/png,image/jpeg,image/webp,.png,.jpg,.jpeg,.webp"
                       onChange={handleFileChange}
                     />
 
@@ -331,11 +423,33 @@ export const ResumeImportDialog: React.FC<ResumeImportDialogProps> = ({ onClose,
                           Click to upload or drag and drop
                         </p>
                         <p className="text-xs text-[#6E6A62] mt-1.5">
-                          Supported formats: <span className="font-semibold text-[#1F1F1B]">.pdf, .docx</span>
+                          Supported formats: <span className="font-semibold text-[#1F1F1B]">PDF, DOCX, PNG, JPG, WEBP</span>
                         </p>
                         <p className="text-xs text-[#6E6A62] mt-0.5">
                           Maximum file size: 10 MB
                         </p>
+                      </div>
+                    ) : isImageFile(selectedFile) ? (
+                      <div className="space-y-4">
+                        <ImageFilePreview
+                          file={selectedFile}
+                          isProcessing={isExtracting}
+                          onReplace={() => fileInputRef.current?.click()}
+                          onRemove={handleRemoveFile}
+                        />
+
+                        {isExtracting && (
+                          <OcrProgress
+                            status={ocrProgress.status}
+                            progress={ocrProgress.progress}
+                            onCancel={handleCancelOcr}
+                          />
+                        )}
+
+                        <div className="flex items-center justify-between border-t border-[#E2DACF]/60 pt-3 text-xs text-[#6E6A62]">
+                          <span>Supported formats: PDF, DOCX, PNG, JPG, WEBP</span>
+                          <span>Maximum file size: 10 MB</span>
+                        </div>
                       </div>
                     ) : (
                       <div className="bg-[#FFFEFA] border border-[#E2DACF] rounded-xl p-4 sm:p-5 space-y-4">
@@ -383,7 +497,7 @@ export const ResumeImportDialog: React.FC<ResumeImportDialogProps> = ({ onClose,
                         )}
 
                         <div className="flex items-center justify-between border-t border-[#E2DACF]/60 pt-3 text-xs text-[#6E6A62]">
-                          <span>Supported formats: .pdf, .docx</span>
+                          <span>Supported formats: PDF, DOCX, PNG, JPG, WEBP</span>
                           <span>Maximum file size: 10 MB</span>
                         </div>
                       </div>
@@ -430,9 +544,13 @@ export const ResumeImportDialog: React.FC<ResumeImportDialogProps> = ({ onClose,
                     {isExtracting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                     <span>
                       {isExtracting
-                        ? selectedFile?.name.toLowerCase().endsWith('.pdf')
+                        ? isImageFile(selectedFile)
+                          ? ocrProgress.status || 'Recognizing image…'
+                          : selectedFile?.name.toLowerCase().endsWith('.pdf')
                           ? 'Reading PDF…'
                           : 'Reading DOCX…'
+                        : isImageFile(selectedFile)
+                        ? 'Recognize image'
                         : 'Parse resume'}
                     </span>
                   </button>
@@ -468,7 +586,10 @@ export const ResumeImportDialog: React.FC<ResumeImportDialogProps> = ({ onClose,
               </button>
               <button
                 type="button"
-                onClick={onClose}
+                onClick={() => {
+                  handleCancelOcr();
+                  onClose();
+                }}
                 className="px-4 py-2 rounded-lg text-xs font-medium text-white bg-red-600 hover:bg-red-700 transition-colors"
               >
                 Discard

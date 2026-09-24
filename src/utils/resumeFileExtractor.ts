@@ -1,6 +1,13 @@
 import { generateId } from './id';
+import {
+  validateResumeImportFile,
+  ResumeImportFileType,
+  FileValidationResult,
+  MAX_FILE_SIZE
+} from './resumeImportValidation';
 
-export type ResumeImportFileType = 'pdf' | 'docx';
+export { validateResumeImportFile, MAX_FILE_SIZE };
+export type { ResumeImportFileType, FileValidationResult };
 
 export interface FileExtractionWarning {
   id: string;
@@ -12,77 +19,6 @@ export interface FileExtractionResult {
   fileType: ResumeImportFileType;
   warnings: FileExtractionWarning[];
   pageCount?: number;
-}
-
-export interface FileValidationResult {
-  valid: boolean;
-  error?: string;
-  fileType?: ResumeImportFileType;
-}
-
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
-
-export function validateResumeImportFile(file: File): FileValidationResult {
-  if (!file) {
-    return { valid: false, error: 'No file provided.' };
-  }
-
-  if (file.size === 0) {
-    return { valid: false, error: 'This file appears to be empty.' };
-  }
-
-  if (file.size > MAX_FILE_SIZE) {
-    return { valid: false, error: 'The file is larger than 10 MB.' };
-  }
-
-  const fileName = (file.name || '').trim();
-  const lastDotIndex = fileName.lastIndexOf('.');
-  const ext = lastDotIndex !== -1 ? fileName.slice(lastDotIndex + 1).toLowerCase() : '';
-  const mimeType = (file.type || '').toLowerCase();
-
-  // Reject unsupported common extensions
-  const explicitlyRejectedExts = [
-    'doc', 'txt', 'png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'svg',
-    'exe', 'bat', 'sh', 'cmd', 'bin', 'zip', 'rar', '7z', 'tar', 'gz',
-    'rtf', 'odt', 'pages', 'html', 'htm', 'js', 'ts', 'json'
-  ];
-  if (explicitlyRejectedExts.includes(ext)) {
-    return { valid: false, error: 'This file type is not supported.' };
-  }
-
-  // Reject explicitly non-document MIME types even if extension is missing/spoofed
-  if (
-    mimeType.startsWith('image/') ||
-    mimeType.startsWith('text/') ||
-    mimeType.startsWith('audio/') ||
-    mimeType.startsWith('video/') ||
-    mimeType === 'application/x-msdownload' ||
-    mimeType === 'application/msword'
-  ) {
-    return { valid: false, error: 'This file type is not supported.' };
-  }
-
-  if (ext === 'pdf') {
-    // If MIME type is present, allow application/pdf
-    if (mimeType !== '' && mimeType !== 'application/pdf') {
-      return { valid: false, error: 'This file type is not supported.' };
-    }
-    return { valid: true, fileType: 'pdf' };
-  }
-
-  if (ext === 'docx') {
-    const validDocxMimes = [
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      'application/zip',
-      'application/x-zip-compressed'
-    ];
-    if (mimeType !== '' && !validDocxMimes.includes(mimeType)) {
-      return { valid: false, error: 'This file type is not supported.' };
-    }
-    return { valid: true, fileType: 'docx' };
-  }
-
-  return { valid: false, error: 'This file type is not supported.' };
 }
 
 let pdfWorkerConfigured = false;
@@ -180,7 +116,7 @@ export async function extractResumeTextFromPdf(file: File): Promise<FileExtracti
   // Strip whitespace and punctuation/symbols
   const meaningfulChars = fullText.replace(/[\s\r\n\t\p{P}\p{S}]/gu, '');
   if (meaningfulChars.length < 5) {
-    throw new Error('No selectable text was found. This may be a scanned PDF. Image and OCR import will be added in Phase 4C.');
+    throw new Error('No selectable text was found. This may be a scanned PDF. For now, export the page as a PNG or JPEG and use Image Import.');
   }
 
   const warnings: FileExtractionWarning[] = [
